@@ -21,4 +21,6 @@ urlpatterns = [
     path("createTracker/",views.createTracker,name='createTracker'),
     path("getLeadIDForTracker/",views.getLeadIDForTracker,name='getLeadIDForTracker'),
     path("deleteTracking/",views.deleteTracking,name='deleteTracking'),
+    path("getLeadIDForUpdateTracking/",views.getLeadIDForUpdateTracking,name='getLeadIDForUpdateTracking'),
+    path("updateTracking/",views.updateTracking,name='updateTracking'),
 ]

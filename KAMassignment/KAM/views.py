@@ -108,7 +108,7 @@ def createTracker(request):
 
 
 #viewCurrentLeads
-def viewLeads(request,leadIDFromCreateTracker = -1):
+def viewLeads(request,leadIDFetchFromOtherFunc = '-1'):
     try:
         allLeads = leads.objects.all() #Fetching all leads data from database
     except:
@@ -129,7 +129,7 @@ def viewLeads(request,leadIDFromCreateTracker = -1):
 
     # if function fired from createTracking then get value of leadIDFromCreateTracker into leadId
     if(leadID == '0'):
-        leadID = leadIDFromCreateTracker
+        leadID = leadIDFetchFromOtherFunc
 
     leadData = 0#will contain lead data
     interactionsData = []
@@ -282,7 +282,7 @@ def deleteTracking(request):
     return viewLeads(request,leadID)#sending leadID to viewLeads
 
 
-##get interaction ID to update interaction as it contains lead ID as foreign key
+##get interaction ID to update interaction
 def getLeadIDForUpdateInteraction(request):
     interactionId = request.POST.get("interactionID",'')
     try:
@@ -295,6 +295,7 @@ def getLeadIDForUpdateInteraction(request):
     return render(request,'KAM/updateInteraction.HTML',params)
 
 
+#update Interactions
 def updateInteraction(request):
 
     interactionId = request.POST.get('interactionID','')
@@ -304,17 +305,47 @@ def updateInteraction(request):
     Date = request.POST.get('date','')
 
     try:
-        foreignKey = interactionLogging.objects.filter(interactionID = interactionId).get()
-    except:
-        return HttpResponse("Matching Query Dosenot exist for foreign Key : FUNC->updateInteraction")
-
-    try:
         interactionLogging.objects.filter(interactionID = interactionId).update(type = Type,notes = Notes,followUp = FollowUps,date = Date)
     except:
         return HttpResponse("Matching Query Dosenot exist for updation : FUNC->updateInteraction")
 
     return index(request)
 
+
+##get interaction ID to update interaction
+def getLeadIDForUpdateTracking(request):
+    trackingId = request.POST.get('trackingID','')
+
+    try:
+        trackingObject = tracking.objects.filter(trackingID = trackingId).get()
+    except:
+        return HttpResponse("Matching Query Dosenot exist for updation : FUNC->getLeadIDForUpdateTracking")
+
+    params = {'trackingObject' : trackingObject}
+
+    return render(request,'KAM/updateTracker.html',params)
+
+
+#update Tracker
+def updateTracking(request):
+
+    trackingId = request.POST.get('trackingID','')
+    Name = request.POST.get('name','')
+    Role = request.POST.get('role','')
+    ContactNo = request.POST.get('ContactNo','')
+
+    #fetching Lead ID to pass to viewleads
+    try:
+        leadId = tracking.objects.filter(trackingID = trackingId).get().leadID.leadID
+    except:
+        return HttpResponse("Matching Query Dosenot exist for fetching lead ID : FUNC->updateTracking")
+
+    try:
+        tracking.objects.filter(trackingID = trackingId).update(name = Name,role = Role,phoneNumber = ContactNo)
+    except:
+        return HttpResponse("Matching Query Dosenot exist for updation : FUNC->updateTracking")
+
+    return viewLeads(request,str(leadId))
 
 
 

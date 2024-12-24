@@ -112,6 +112,7 @@
           <th scope="col">Staff Role</th>
           <th scope="col">Staff EmailId</th>
           <th scope="col"></th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
@@ -123,6 +124,7 @@
             <td>{{tracking.role}}</td>
             <td>{{tracking.emailID}}</td>
             <td><form action="../deleteTracking/" method="POST"><input type="hidden" name="leadID" value="{{leadData.leadID}}"><input type="hidden" name="trackingID" value="{{tracking.trackingID}}">{% csrf_token %}<button type="submit" class="btn btn-primary btn-sm">Remove</button></form></td>
+            <td><form action="../getLeadIDForUpdateTracking/" method="POST"><input type="hidden" name="leadID" value="{{tracking.trackingID}}"><input type="hidden" name="trackingID" value="{{tracking.trackingID}}">{% csrf_token %}<button type="submit" class="btn btn-primary btn-sm">update</button></form></td>
           </tr>
         {% endfor %}
       </tbody>
