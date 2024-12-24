@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 from .models import leads,interactionLogging,tracking
 from datetime import date
 
@@ -10,18 +9,21 @@ def index(request):
     try:
         allLeads = leads.objects.all() #Fetching all leads data from database
     except:
-        return HttpResponse("No object present in Leads Table : FUNC->index")
+        allLeads = None
 
     try:
         allInteractions = interactionLogging.objects.all()#Fetching all interaction data from database 
     except:
-        return HttpResponse("No object present in Interaction Table : FUNC->index")
+        allInteractions = None
 
     #getting calls pending on todays dates from interactions
     todaysCalls = []
-    for item in allInteractions:
-        if(item.date == date.today()):
-            todaysCalls.append(item)
+
+    #basic error handling as None is not iterable
+    if(allInteractions != None):
+        for item in allInteractions:
+            if(item.date == date.today()):
+                todaysCalls.append(item)
     
 
     params = {'allLeads' : allLeads,'allinteractions':allInteractions,'todaysCalls' : todaysCalls}    #Dictionary that stores parameters comming from database and pass to webpage
@@ -47,7 +49,7 @@ def createLeads(request):
         create = leads(restaurantName = name, address = resAddress,contactNumber = number,currentStatus =  status,KAMID = KID)
         create.save()
     except:
-        return HttpResponse("Matching Query Dosenot exist for save : FUNC->createLeads")
+        return index(request)
 
     return index(request)
 
@@ -58,7 +60,7 @@ def getLeadIDForUpdateLead(request):
     try:
         leadObject = leads.objects.filter(leadID = leadId).get()
     except:
-        return HttpResponse("Matching Query Dosenot exist for leadID : FUNC->getLeadIDForuUpdateLead")
+        return index(request)
     
     params = {'leadObject' : leadObject}#used to store parameters
     
@@ -95,14 +97,14 @@ def createTracker(request):
     try:
         foreignKey = leads.objects.filter(leadID = leadId).get()
     except:
-        return HttpResponse("Matching Query Dosenot exist for leads : FUNC->createTracker")
+        return index(request)
     
     #saving data in tracker
     try:
         addTracker = tracking(name = staffName,role = staffRole,phoneNumber = contact,emailID = email,leadID = foreignKey)
         addTracker.save()
     except:
-        return HttpResponse("Matching Query Dosenot exist for save : FUNC->createTracker")
+        return index(request)
 
     return viewLeads(request,leadId)
 
@@ -112,17 +114,17 @@ def viewLeads(request,leadIDFetchFromOtherFunc = '-1'):
     try:
         allLeads = leads.objects.all() #Fetching all leads data from database
     except:
-        return HttpResponse("No object present in Leads Table")
+        allLeads = None
 
     try:
         allInteractions = interactionLogging.objects.all()#Fetching all interaction data from database 
     except:
-        return HttpResponse("No object present in Interaction Table")
+        allInteractions = None
 
     try:   
         allTrackingData = tracking.objects.all()#Fetching all tracking data from database 
     except:
-        return HttpResponse("No object presnet in Tracking Table")
+        allTrackingData = None
 
     #accessing leadid from index page 
     leadID = request.POST.get('leadid','0')
@@ -135,21 +137,25 @@ def viewLeads(request,leadIDFetchFromOtherFunc = '-1'):
     interactionsData = []
     trackingData = []
 
+    #None Cannot be iterated
     #processing allLeads to get data related to leadId
-    for lead in allLeads:
-        if str(lead.leadID) == leadID:
-            leadData = lead
-            break
+    if(allLeads != None):
+        for lead in allLeads:
+            if str(lead.leadID) == leadID:
+                leadData = lead
+                break
     
     #processing allLeads to get data related to interactions related to lead
-    for interaction in allInteractions:
-        if(str(interaction.leadID.leadID) == leadID):
-            interactionsData.append(interaction)
+    if(allInteractions != None):
+        for interaction in allInteractions:
+            if(str(interaction.leadID.leadID) == leadID):
+                interactionsData.append(interaction)
 
     # processing alltrackingdata to get tracking details related tot lead
-    for track in allTrackingData:
-        if(str(track.leadID.leadID) == leadID):
-            trackingData.append(track)
+    if(allTrackingData != None):
+        for track in allTrackingData:
+            if(str(track.leadID.leadID) == leadID):
+                trackingData.append(track)
 
     params = {'leadData' : leadData,'interactionData':interactionsData,'trackingData':trackingData}#Dictionary that stores parameters comming from database and pass to webpage
     return render(request,'KAM/viewLeads.html',params)
@@ -159,8 +165,15 @@ def viewLeads(request,leadIDFetchFromOtherFunc = '-1'):
 def searchResult(request):   
 
     #fetching data from database
-    leadData = leads.objects.all()
-    interactionData = interactionLogging.objects.all()
+    try:
+        leadData = leads.objects.all()
+    except:
+        leadData = None
+
+    try:
+        interactionData = interactionLogging.objects.all()
+    except:
+        interactionData = None
 
     searchInput = request.POST.get('searchResult','noinput')#fetching searchdata from web page
 
@@ -174,14 +187,17 @@ def searchResult(request):
     idForInteraction = []
 
     #processing data to get searchdata
-    for items in leadData:
-        if(searchInput in items.restaurantName or searchInput == items.KAMID or searchInput in items.address or searchInput == items.currentStatus):
-            leadID.add(items)
-            idForInteraction.append(items.leadID)
+    #none is not Iterable
+    if(leadData != None):
+        for items in leadData:
+            if(searchInput in items.restaurantName or searchInput == items.KAMID or searchInput in items.address or searchInput == items.currentStatus):
+                leadID.add(items)
+                idForInteraction.append(items.leadID)
 
-    for items in interactionData:
-        if(items.leadID.leadID in idForInteraction):
-            interactionID.append(items)
+    if(interactionData != None):
+        for items in interactionData:
+            if(items.leadID.leadID in idForInteraction):
+                interactionID.append(items)
 
     params = {'allLeads' : leadID, 'allinteractions' : interactionID}
 
@@ -201,7 +217,7 @@ def updateLeads(request):
     try:
         leads.objects.filter(leadID = leadId).update(restaurantName = name,address = location,contactNumber = number,currentStatus = status,KAMID = KAMId)
     except:
-        return HttpResponse("Matching Query Dosenot exist for Update : FUNC->updateLeads")
+        return index(request)
 
     return viewLeads(request,leadId)
 
@@ -209,6 +225,7 @@ def updateLeads(request):
 #getLeadIDForInteraction
 #same logic as create tracker here also LeadID is Foreign Key
 def getLeadIDForInteraction(request):
+
     leadID = request.POST.get('leadID','')
 
     params = {'leadID' : leadID}
@@ -228,13 +245,13 @@ def addInteraction(request):
     try:
         foreignKey = leads.objects.filter(leadID = ID).get()
     except:
-        return HttpResponse("Matching Query Dosenot exist for leads : FUNC->addInteraction")
+        return index(request)
 
     try:
         addinteraction = interactionLogging(type = Type,notes = Note,followUp = follow,date = Date,leadID = foreignKey)
         addinteraction.save()
     except:
-        return HttpResponse("Matching Query Dosenot exist for saving : FUNC->addInteraction")
+        return index(request)
 
     return viewLeads(request,ID)
 
@@ -248,7 +265,7 @@ def deleteInteraction(request):
     try:
         interactionLogging.objects.filter(interactionID = ID).delete()
     except:
-        return HttpResponse("Matching Query Dosenot exist for deletion : FUNC->deleteInteraction")
+        return index(request)
 
     return index(request)
 
@@ -262,7 +279,7 @@ def deleteLead(request):
     try:
         leads.objects.filter(leadID = ID).delete()
     except:
-        return HttpResponse("Matching Query Dosenot exist for deletion : FUNC->deleteLead")
+        return index(request)
 
     return index(request)
 
@@ -277,7 +294,7 @@ def deleteTracking(request):
     try:
         tracking.objects.filter(trackingID = trackingId).delete()
     except:
-        return HttpResponse("Matching Query Dosenot exist for deletion : FUNC->deleteTracking")
+        return index(request)
 
     return viewLeads(request,leadID)#sending leadID to viewLeads
 
@@ -288,7 +305,7 @@ def getLeadIDForUpdateInteraction(request):
     try:
         interactionObject = interactionLogging.objects.filter(interactionID = interactionId).get()
     except:
-        return HttpResponse("Matching Query Dosenot exist for updation : FUNC->getLeadIDForUpdateInteraction")
+        return index(request)
     
     params = {'interactionObject' : interactionObject}
 
@@ -307,7 +324,7 @@ def updateInteraction(request):
     try:
         interactionLogging.objects.filter(interactionID = interactionId).update(type = Type,notes = Notes,followUp = FollowUps,date = Date)
     except:
-        return HttpResponse("Matching Query Dosenot exist for updation : FUNC->updateInteraction")
+        return index(request)
 
     return index(request)
 
@@ -319,7 +336,7 @@ def getLeadIDForUpdateTracking(request):
     try:
         trackingObject = tracking.objects.filter(trackingID = trackingId).get()
     except:
-        return HttpResponse("Matching Query Dosenot exist for updation : FUNC->getLeadIDForUpdateTracking")
+        return index(request)
 
     params = {'trackingObject' : trackingObject}
 
@@ -332,18 +349,19 @@ def updateTracking(request):
     trackingId = request.POST.get('trackingID','')
     Name = request.POST.get('name','')
     Role = request.POST.get('role','')
-    ContactNo = request.POST.get('ContactNo','')
+    ContactNo = request.POST.get('contactNo','')
+    email = request.POST.get('emailID','')
 
     #fetching Lead ID to pass to viewleads
     try:
         leadId = tracking.objects.filter(trackingID = trackingId).get().leadID.leadID
     except:
-        return HttpResponse("Matching Query Dosenot exist for fetching lead ID : FUNC->updateTracking")
+        return index(request)
 
     try:
-        tracking.objects.filter(trackingID = trackingId).update(name = Name,role = Role,phoneNumber = ContactNo)
+        tracking.objects.filter(trackingID = trackingId).update(name = Name,role = Role,phoneNumber = ContactNo,emailID = email)
     except:
-        return HttpResponse("Matching Query Dosenot exist for updation : FUNC->updateTracking")
+        return index(request)
 
     return viewLeads(request,str(leadId))
 
