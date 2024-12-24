@@ -75,25 +75,25 @@
   </nav>
 
   <!-- Submit form -->
-  <h3 style="margin-left:60px;margin-bottom:10px;margin-top:10px">Enter Interaction Details</h3>
+  <h3 style="margin-left:60px;margin-bottom:10px;margin-top:10px">Enter Tracker Details</h3>
 
   <div class="container">
-    <form action="../addInteraction/" method="POST">{% csrf_token %}
+    <form action="../createTracker/" method="POST">{% csrf_token %}
       <label for="subject">Lead ID</label>
-      <input type="text" readonly="readonly" id="subjec"  placeholder="{{leadID}}"></textarea>
-      <input type="hidden" value="{{leadID}}" name="leadID" id="subjec"></textarea>
+      <input type="text" readonly="readonly" id="subjec"  placeholder="{{leadId}}"></textarea>
+      <input type="hidden" value="{{leadId}}" name="leadID" id="subjec"></textarea>
 
-      <label for="name">Type</label>
-      <input type="text" id="nam" name="type" placeholder="Call/Visit/Order">
+      <label for="name">Name</label>
+      <input type="text" id="nam" name="name" placeholder="Restaurant Staff Name">
 
-      <label for="address">Notes</label>
-      <input type="text" id="email" name="notes" placeholder="">
+      <label for="address">Role</label>
+      <input type="text" id="email" name="role" placeholder="Manager">
 
-      <label for="telephone">Follow Up</label>
-      <input type="tel" id="phoneno" name="followUp" placeholder="Yes/No">
+      <label for="telephone">Phone Number</label>
+      <input type="tel" id="phoneno" name="contactNo" placeholder="0123456789">
 
-      <label for="EmailID">Date</label>
-      <input type="text" id="countr" name="date" placeholder="YYYY-MM-DD">
+      <label for="EmailID">Email ID</label>
+      <input type="text" id="countr" name="emailID" placeholder="abc@gmail.com">
 
       <input type="submit" value="Submit">
     </form>

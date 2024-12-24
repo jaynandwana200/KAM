@@ -10,12 +10,12 @@ def index(request):
     try:
         allLeads = leads.objects.all() #Fetching all leads data from database
     except:
-        return HttpResponse("No object present in Leads Table")
+        return HttpResponse("No object present in Leads Table : FUNC->index")
 
     try:
         allInteractions = interactionLogging.objects.all()#Fetching all interaction data from database 
     except:
-        return HttpResponse("No object present in Interaction Table")
+        return HttpResponse("No object present in Interaction Table : FUNC->index")
 
     #getting calls pending on todays dates from interactions
     todaysCalls = []
@@ -47,20 +47,56 @@ def createLeads(request):
         create = leads(restaurantName = name, address = resAddress,contactNumber = number,currentStatus =  status,KAMID = KID)
         create.save()
     except:
-        return HttpResponse("Save does not Exist for givem query")
-    
+        return HttpResponse("Matching Query Dosenot exist for save : FUNC->createLeads")
 
     return index(request)
 
 
-#create tracker
-def createTracker(request):
+##Logic to add Tracker
+# First we use getLeadIDForTracker function to get leadID from viewlead page 
+# and them send leadid of lead to createLeads page to which tracker is related and then with other 
+# details of tracker and leadId send it to createTracker function to add tracker  
+#this is done because tracking table is referencing leads table and has foreign key ( LeadsId ) in it
 
-    return HttpResponse('createTracker')
+#Fetching LeadId to add Tracker to leadID
+def getLeadIDForTracker(request):
+    leadId = request.POST.get('leadID','')
+    params = {'leadId': leadId}
+    return render(request,'KAM/createTracker.html',params)#sending leadID to create Tracker page
+
+
+#creating tarcker 
+def createTracker(request):
+    leadId = request.POST.get('leadID','No')
+    staffName = request.POST.get('name','No')
+    staffRole = request.POST.get('role','No')
+    contact = request.POST.get('contactNo','No')
+    email = request.POST.get('emailID','No')
+    
+    #No empty data allowed
+    if(leadId == 'No' or staffName == 'No' or staffRole == 'No' or contact == 'No' or email == 'No'):
+        return createTracker(request)
+    
+    #fetching foreign key object from leads to create tracker
+
+    try:
+        foreignKey = leads.objects.filter(leadID = leadId).get()
+    except:
+        return HttpResponse("Matching Query Dosenot exist for leads : FUNC->createTracker")
+    
+    #saving data in tracker
+    try:
+        addTracker = tracking(name = staffName,role = staffRole,phoneNumber = contact,emailID = email,leadID = foreignKey)
+        addTracker.save()
+    except:
+        return HttpResponse("Matching Query Dosenot exist for save : FUNC->createTracker")
+
+    return viewLeads(request,leadId)
 
 
 #viewCurrentLeads
-def viewLeads(request):
+#here leadIDFromCreateTracker is value of leadID if function is fired from createtacker function
+def viewLeads(request,leadIDFromCreateTracker = -1):
     try:
         allLeads = leads.objects.all() #Fetching all leads data from database
     except:
@@ -78,10 +114,15 @@ def viewLeads(request):
 
     #accessing leadid from index page 
     leadID = request.POST.get('leadid','0')
-    
+
+    # if function fired from createTracking then get value of leadIDFromCreateTracker into leadId
+    if(leadID == '0'):
+        leadID = leadIDFromCreateTracker
+
     leadData = 0#will contain lead data
     interactionsData = []
     trackingData = []
+
     #processing allLeads to get data related to leadId
     for lead in allLeads:
         if str(lead.leadID) == leadID:
@@ -140,9 +181,37 @@ def updateLeads(request):
     return HttpResponse('Hello')
 
 
+#getLeadIDForInteraction
+#same logic as create tracker here also LeadID is Foreign Key
+def getLeadIDForInteraction(request):
+    leadID = request.POST.get('leadID','')
+
+    params = {'leadID' : leadID}
+    return render(request,'KAM/interactions.html',params)
+
+
 #addInteraction
 def addInteraction(request):
-    return render(request,'KAM/interactions.html')
+    #fetching data from intiractions web page
+    ID = request.POST.get('leadID','')
+    Type = request.POST.get('type','')
+    Note = request.POST.get('notes','')
+    follow = request.POST.get('followUp','')
+    Date = request.POST.get('date','')
+
+    #fetching foreign key to pass to intercation to create 
+    try:
+        foreignKey = leads.objects.filter(leadID = ID).get()
+    except:
+        return HttpResponse("Matching Query Dosenot exist for leads : FUNC->addInteraction")
+
+    try:
+        addinteraction = interactionLogging(type = Type,notes = Note,followUp = follow,date = Date,leadID = foreignKey)
+        addinteraction.save()
+    except:
+        return HttpResponse("Matching Query Dosenot exist for saving : FUNC->addInteraction")
+
+    return viewLeads(request,ID)
 
 
 #deleteInteraction
@@ -151,7 +220,10 @@ def deleteInteraction(request):
     ID = request.POST.get('interactionID','1')
 
     #deleting interaction from database
-    interactionLogging.objects.filter(interactionID = ID).delete()
+    try:
+        interactionLogging.objects.filter(interactionID = ID).delete()
+    except:
+        return HttpResponse("Matching Query Dosenot exist for deletion : FUNC->deleteInteraction")
 
     return index(request)
 
@@ -162,6 +234,24 @@ def deleteLead(request):
     ID = request.POST.get('LID','1')#leadID
     
     #deleting interaction from database
-    leads.objects.filter(leadID = ID).delete()
+    try:
+        leads.objects.filter(leadID = ID).delete()
+    except:
+        return HttpResponse("Matching Query Dosenot exist for deletion : FUNC->deleteLead")
 
     return index(request)
+
+
+#delete Tracking
+def deleteTracking(request):
+
+    #fetching Tracking id to delete
+    trackingId = request.POST.get('trackingID','0')
+    leadID = request.POST.get('leadID','0')
+
+    try:
+        tracking.objects.filter(trackingID = trackingId).delete()
+    except:
+        return HttpResponse("Matching Query Dosenot exist for deletion : FUNC->deleteTracking")
+
+    return viewLeads(request,leadID)#sending leadID to viewLeads

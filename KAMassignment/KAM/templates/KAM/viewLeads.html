@@ -22,13 +22,19 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link active" href="../" tabindex="-1">Home Page</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="../createLeads">Create Lead</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="../addInteraction">Add Interaction</a>
+              <form class="d-flex" action="../getLeadIDForInteraction/" method="post">
+                <input class="form-control me-2" type="hidden" name="leadID" value="{{leadData.leadID}}">{% csrf_token %}
+                <button class="btn btn-outline-success" type="submit">Add Interaction</button>
+              </form>
+            </li>
+            <li class="nav-item">
+              <form class="d-flex" action="../getLeadIDForTracker/" method="post">
+                <input class="form-control me-2" type="hidden" name="leadID" value="{{leadData.leadID}}">{% csrf_token %}
+                <button class="btn btn-outline-success" type="submit">Add Tracker</button>
+              </form>
             </li>
             <li class="nav-item">
               <form class="d-flex" action="../deleteLead/" method="post">
@@ -99,6 +105,7 @@
           <th scope="col">Staff contact number</th>
           <th scope="col">Staff Role</th>
           <th scope="col">Staff EmailId</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
@@ -109,6 +116,7 @@
             <td>{{tracking.phoneNumber}}</td>
             <td>{{tracking.role}}</td>
             <td>{{tracking.emailID}}</td>
+            <td><form action="../deleteTracking/" method="POST"><input type="hidden" name="leadID" value="{{leadData.leadID}}"><input type="hidden" name="trackingID" value="{{tracking.trackingID}}">{% csrf_token %}<button type="submit" class="btn btn-primary btn-sm">Remove</button></form></td>
           </tr>
         {% endfor %}
       </tbody>
