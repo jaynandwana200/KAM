@@ -284,8 +284,36 @@ def deleteTracking(request):
 
 ##get interaction ID to update interaction as it contains lead ID as foreign key
 def getLeadIDForUpdateInteraction(request):
+    interactionId = request.POST.get("interactionID",'')
+    try:
+        interactionObject = interactionLogging.objects.filter(interactionID = interactionId).get()
+    except:
+        return HttpResponse("Matching Query Dosenot exist for updation : FUNC->getLeadIDForUpdateInteraction")
+    
+    params = {'interactionObject' : interactionObject}
 
-    return HttpResponse("get leadid to update interaction")
+    return render(request,'KAM/updateInteraction.HTML',params)
+
+
+def updateInteraction(request):
+
+    interactionId = request.POST.get('interactionID','')
+    Type = request.POST.get('type','')
+    Notes = request.POST.get('notes','')
+    FollowUps = request.POST.get('followUp','')
+    Date = request.POST.get('date','')
+
+    try:
+        foreignKey = interactionLogging.objects.filter(interactionID = interactionId).get()
+    except:
+        return HttpResponse("Matching Query Dosenot exist for foreign Key : FUNC->updateInteraction")
+
+    try:
+        interactionLogging.objects.filter(interactionID = interactionId).update(type = Type,notes = Notes,followUp = FollowUps,date = Date)
+    except:
+        return HttpResponse("Matching Query Dosenot exist for updation : FUNC->updateInteraction")
+
+    return index(request)
 
 
 
