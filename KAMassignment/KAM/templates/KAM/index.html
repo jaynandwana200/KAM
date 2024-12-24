@@ -100,6 +100,7 @@
           <th scope="col">Follow Up</th>
           <th scope="col">Lead ID</th>
           <th scope="col"></th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
@@ -112,6 +113,7 @@
               <td>{{interaction.followUp}}</td>
               <td>{{interaction.leadID.leadID}}</td>
               <td><form action="../deleteInteraction/" method="POST"><input type="hidden" name="interactionID" value="{{interaction.interactionID}}">{% csrf_token %}<button type="submit" class="btn btn-primary btn-sm">Close</button></form></td>
+              <td><form action="../getLeadIDForUpdateInteraction/" method="POST"><input type="hidden" name="interactionID" value="{{interaction.interactionID}}">{% csrf_token %}<button type="submit" class="btn btn-primary btn-sm">Update</button></form></td>
             </tr>
         {% endfor %}
       </tbody>

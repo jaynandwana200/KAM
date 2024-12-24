@@ -52,6 +52,18 @@ def createLeads(request):
     return index(request)
 
 
+def getLeadIDForUpdateLead(request):
+    leadId = request.POST.get('LeadID','')
+
+    try:
+        leadObject = leads.objects.filter(leadID = leadId).get()
+    except:
+        return HttpResponse("Matching Query Dosenot exist for leadID : FUNC->getLeadIDForuUpdateLead")
+    
+    params = {'leadObject' : leadObject}#used to store parameters
+    
+    return render(request,'KAM/updateLeads.HTML',params)
+
 ##Logic to add Tracker
 # First we use getLeadIDForTracker function to get leadID from viewlead page 
 # and them send leadid of lead to createLeads page to which tracker is related and then with other 
@@ -59,6 +71,7 @@ def createLeads(request):
 #this is done because tracking table is referencing leads table and has foreign key ( LeadsId ) in it
 
 #Fetching LeadId to add Tracker to leadID
+#here leadIDFromCreateTracker is value of leadID if function is fired from createtacker function
 def getLeadIDForTracker(request):
     leadId = request.POST.get('leadID','')
     params = {'leadId': leadId}
@@ -95,7 +108,6 @@ def createTracker(request):
 
 
 #viewCurrentLeads
-#here leadIDFromCreateTracker is value of leadID if function is fired from createtacker function
 def viewLeads(request,leadIDFromCreateTracker = -1):
     try:
         allLeads = leads.objects.all() #Fetching all leads data from database
@@ -178,7 +190,20 @@ def searchResult(request):
 
 #updateLeads
 def updateLeads(request):
-    return HttpResponse('Hello')
+
+    leadId = request.POST.get('leadId','') 
+    name = request.POST.get('name','')
+    location = request.POST.get('address','')
+    number = request.POST.get('contactNo','')
+    status = request.POST.get('currentStatus','')
+    KAMId = request.POST.get('KAMID','')
+
+    try:
+        leads.objects.filter(leadID = leadId).update(restaurantName = name,address = location,contactNumber = number,currentStatus = status,KAMID = KAMId)
+    except:
+        return HttpResponse("Matching Query Dosenot exist for Update : FUNC->updateLeads")
+
+    return viewLeads(request,leadId)
 
 
 #getLeadIDForInteraction
@@ -255,3 +280,18 @@ def deleteTracking(request):
         return HttpResponse("Matching Query Dosenot exist for deletion : FUNC->deleteTracking")
 
     return viewLeads(request,leadID)#sending leadID to viewLeads
+
+
+##get interaction ID to update interaction as it contains lead ID as foreign key
+def getLeadIDForUpdateInteraction(request):
+
+    return HttpResponse("get leadid to update interaction")
+
+
+
+
+
+
+
+
+
