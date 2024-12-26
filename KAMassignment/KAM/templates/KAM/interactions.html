@@ -84,13 +84,22 @@
       <input type="hidden" value="{{leadID}}" name="leadID" id="subjec"></textarea>
 
       <label for="name">Type</label>
-      <input type="text" id="nam" name="type" placeholder="Call/Visit/Order">
+      <select class="form-select" style="padding: 12px;border: 1px solid #ccc;border-radius: 4px;box-sizing: border-box;margin-top: 6px;margin-bottom: 16px;resize: vertical;" aria-label="Default select example" name="type" id="textarea">
+        <option selected>Type</option>
+        <option value="call">Call</option>
+        <option value="visit">Visit</option>
+        <option value="order">Order</option>
+      </select>
 
       <label for="address">Notes</label>
       <input type="text" id="email" name="notes" placeholder="">
 
       <label for="telephone">Follow Up</label>
-      <input type="tel" id="phoneno" name="followUp" placeholder="Yes/No">
+      <select class="form-select" style="padding: 12px;border: 1px solid #ccc;border-radius: 4px;box-sizing: border-box;margin-top: 6px;margin-bottom: 16px;resize: vertical;" aria-label="Default select example" name="followUp" id="textarea">
+        <option selected>Follow Up</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
 
       <label for="EmailID">Date</label>
       <input type="text" id="countr" name="date" placeholder="YYYY-MM-DD">

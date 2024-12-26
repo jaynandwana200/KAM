@@ -1,6 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render,HttpResponse
 from .models import leads, interactionLogging, tracking
 from datetime import date
+from .tasks import testing_celery
+
+
+
+#just testing celery
+
+# def test_celery(request):
+#     testing_celery.delay()
+#     return HttpResponse("Testing celery")
 
 
 # Main Page
@@ -45,6 +54,7 @@ def createLeads(request):
     number = request.POST.get("contactNo", "NocontactNumber")
     status = request.POST.get("currentStatus", "NocurrentStatus")
     KID = request.POST.get("KAMID", "NoKAMID")
+    callFreq = request.POST.get("callFrequency","10")
 
     # check if all fields in form if filled or not
     if (
@@ -64,6 +74,8 @@ def createLeads(request):
             contactNumber=number,
             currentStatus=status,
             KAMID=KID,
+            callFrequency = callFreq,
+            lastCallMade = date.today()
         )
         create.save()
     except:

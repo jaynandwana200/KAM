@@ -9,6 +9,8 @@ class leads(models.Model):
     contactNumber = models.CharField(max_length=10)
     currentStatus = models.CharField(max_length=10)
     KAMID = models.CharField(max_length=10)
+    callFrequency = models.IntegerField()
+    lastCallMade = models.DateField()
 
 
 class tracking(models.Model):

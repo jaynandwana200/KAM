@@ -2,12 +2,13 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+
     ## Basic Rest API End Points
-    #End Point to Main Page
+    # End Point to Main Page
     path("",views.index,name='index'),
     
     
-    #All endpoints related to Leads
+    # All endpoints related to Leads
     path("viewLeads/",views.viewLeads,name='viewLeads'),
     path("createLeads/",views.createLeads,name='createLeads'),
     path("deleteLead/",views.deleteLead,name='deleteLead'),
@@ -15,7 +16,7 @@ urlpatterns = [
     path("updateLeads/",views.updateLeads,name='updateLeads'),
 
 
-    #All endpoints Related to Interaction
+    # All endpoints Related to Interaction
     path("addInteraction/",views.addInteraction,name='addInteraction'),
     path("deleteInteraction/",views.deleteInteraction,name='deleteInteraction'),
     path("getLeadIDForInteraction/",views.getLeadIDForInteraction,name='getLeadIDForInteraction'),
@@ -23,11 +24,11 @@ urlpatterns = [
     path("updateInteraction/",views.updateInteraction,name='updateInteraction'),
 
 
-    #EndPoint related to Search
+    # EndPoint related to Search
     path("searchResult/",views.searchResult,name='searchResult'),
 
 
-    #All endpoints related to Leads
+    # All endpoints related to Leads
     path("createTracker/",views.createTracker,name='createTracker'),
     path("deleteTracking/",views.deleteTracking,name='deleteTracking'),
     path("getLeadIDForTracker/",views.getLeadIDForTracker,name='getLeadIDForTracker'),
