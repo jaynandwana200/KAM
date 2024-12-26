@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 
 
 # Create your models here.
@@ -6,11 +7,15 @@ class leads(models.Model):
     leadID = models.BigAutoField(primary_key=True)
     restaurantName = models.CharField(max_length=50)
     address = models.CharField(max_length=100)
+    city = models.CharField(max_length=30, default="Kota")
+    state = models.CharField(max_length=20, default="Rajasthan")
+    country = models.CharField(max_length=20, default="India")
     contactNumber = models.CharField(max_length=10)
     currentStatus = models.CharField(max_length=10)
     KAMID = models.CharField(max_length=10)
-    callFrequency = models.IntegerField()
-    lastCallMade = models.DateField()
+    callFrequency = models.IntegerField(default=10)
+    time = models.TimeField(default=datetime.time(00, 00, 00))
+    lastCallMade = models.DateField(default=datetime.date)
 
 
 class tracking(models.Model):
@@ -28,4 +33,5 @@ class interactionLogging(models.Model):
     notes = models.CharField(max_length=100)
     followUp = models.CharField(max_length=10)
     date = models.DateField()
+    time = models.TimeField(default=datetime.time(00, 00, 00))
     leadID = models.ForeignKey(leads, on_delete=models.CASCADE)

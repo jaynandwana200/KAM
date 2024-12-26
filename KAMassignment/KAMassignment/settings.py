@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 # import os
 from pathlib import Path
+import os
 # import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -137,10 +138,35 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# Logger to log output messages
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+    },
+}
+
+
+
 
 # Celery settings
 
-CELERY_BROKER_URL = "redis://127.0.0.1:6379"
+CELERY_BROKER_URL = 'redis://default:k32dyaXVmakbQM4zfWQ5zpKmLJljQxe6@redis-13579.crce179.ap-south-1-1.ec2.redns.redis-cloud.com:13579'
 
 CELERY_ACCEPT_CONTENT = ['application/json']
 
@@ -150,7 +176,7 @@ CELERY_TASK_SERIALIZER = 'json'
 
 CELERY_TIMEZONE = 'UTC'
 
-CELERY_RESULT_BACKEND = "django-db"
+CELERY_ENABLE_UTC = True
 
 # Celery beat settings
 

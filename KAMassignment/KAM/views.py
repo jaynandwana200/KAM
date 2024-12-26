@@ -1,15 +1,10 @@
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render, HttpResponse
 from .models import leads, interactionLogging, tracking
 from datetime import date
-from .tasks import testing_celery
+import datetime
+import logging
 
-
-
-#just testing celery
-
-# def test_celery(request):
-#     testing_celery.delay()
-#     return HttpResponse("Testing celery")
+logger = logging.getLogger(__name__)
 
 
 # Main Page
@@ -54,15 +49,22 @@ def createLeads(request):
     number = request.POST.get("contactNo", "NocontactNumber")
     status = request.POST.get("currentStatus", "NocurrentStatus")
     KID = request.POST.get("KAMID", "NoKAMID")
-    callFreq = request.POST.get("callFrequency","10")
+    callFreq = request.POST.get("callFrequency", "NocallFrequency")
+    City = request.POST.get("city", "NoCity")
+    State = request.POST.get("state", "NosCate")
+    Country = request.POST.get("country", "NoCountry")
+    Time = request.POST.get("time", "NotTime")
 
-    # check if all fields in form if filled or not
     if (
         name == "Noname"
         or resAddress == "Noaddress"
         or number == "NocontactNumber"
         or status == "NocurrentStatus"
-        or KID == "NoKAMID"
+        or callFreq == "NocallFrequency"
+        or City == "NoCity"
+        or State == "NosSate"
+        or Country == "NoCountry"
+        or Time == "NotTime"
     ):
         return render(request, "KAM/createLeads.html")
 
@@ -74,8 +76,12 @@ def createLeads(request):
             contactNumber=number,
             currentStatus=status,
             KAMID=KID,
-            callFrequency = callFreq,
-            lastCallMade = date.today()
+            callFrequency=callFreq,
+            lastCallMade=date.today(),
+            city=City,
+            state=State,
+            country=Country,
+            time=Time,
         )
         create.save()
     except:
@@ -308,6 +314,7 @@ def addInteraction(request):
     Note = request.POST.get("notes", "")
     follow = request.POST.get("followUp", "")
     Date = request.POST.get("date", "")
+    Time = request.POST.get("time", datetime.time(00, 00, 00))
 
     # fetching foreign key to pass to intercation to create
     try:
@@ -317,7 +324,12 @@ def addInteraction(request):
 
     try:
         addinteraction = interactionLogging(
-            type=Type, notes=Note, followUp=follow, date=Date, leadID=foreignKey
+            type=Type,
+            notes=Note,
+            followUp=follow,
+            date=Date,
+            leadID=foreignKey,
+            time=Time,
         )
         addinteraction.save()
     except:

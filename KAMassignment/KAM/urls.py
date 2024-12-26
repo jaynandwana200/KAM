@@ -3,6 +3,9 @@ from . import views
 
 urlpatterns = [
 
+    path("test/",views.test_celery,name='test_celery'),
+    
+
     ## Basic Rest API End Points
     # End Point to Main Page
     path("",views.index,name='index'),

@@ -85,18 +85,21 @@
 
       <label for="name">Type</label>
       <select class="form-select" style="padding: 12px;border: 1px solid #ccc;border-radius: 4px;box-sizing: border-box;margin-top: 6px;margin-bottom: 16px;resize: vertical;" aria-label="Default select example" name="type" id="textarea">
-        <option selected>Type</option>
+        <option selected aria-readonly="true">Type</option>
         <option value="call">Call</option>
         <option value="visit">Visit</option>
         <option value="order">Order</option>
       </select>
+      
+      <label for="address">Time</label>
+      <input type="text" id="email" name="time" placeholder=" 00:00:00">
 
       <label for="address">Notes</label>
       <input type="text" id="email" name="notes" placeholder="">
 
       <label for="telephone">Follow Up</label>
       <select class="form-select" style="padding: 12px;border: 1px solid #ccc;border-radius: 4px;box-sizing: border-box;margin-top: 6px;margin-bottom: 16px;resize: vertical;" aria-label="Default select example" name="followUp" id="textarea">
-        <option selected>Follow Up</option>
+        <option selected aria-readonly="true">Follow Up</option>
         <option value="Yes">Yes</option>
         <option value="No">No</option>
       </select>
@@ -121,3 +124,5 @@
     -->
   </body>
 </html>
+
+
