@@ -18,7 +18,7 @@ app.conf.beat_schedule = {
 
     'check_and_generate_new_interaction' : {
         'task' : 'KAM.tasks.testing_celery',
-        'schedule' : crontab(hour=10,minute=17), #time of day when task will run Automatically ( UTC )
+        'schedule' : crontab(hour=10,minute=35), #time of day when task will run Automatically ( UTC )
     }
 }
 
