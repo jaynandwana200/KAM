@@ -23,7 +23,7 @@ def sendMail(kid,KAMmailid,resAddress,number,status,City,State,Country,name,allo
         finalStatement = "Please handover lead to Key Account Manager ID  :  " + newKAMid
 
     message = (
-        "Details of allocated lead : \n \n"
+        "Details of lead : \n \n"
         + "Restaurant Name  :  " + name
         + "\n"
         + "Address  :  " + resAddress + ", " + City + ", " + State + ", " + Country
@@ -511,10 +511,6 @@ def convert24(s = ""):
     mins = s[3:5]
     period = s[6:10]
     time = ""
-
-    print(hrs)
-    print(mins)
-    print(period)
 
     if(period == "a.m." and hrs == 12):
         time = "00:00:00"
