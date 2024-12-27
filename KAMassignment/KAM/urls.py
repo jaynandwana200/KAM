@@ -3,14 +3,13 @@ from . import views
 
 urlpatterns = [
 
-    path("test/",views.test_celery,name='test_celery'),
-    
-
     ## Basic Rest API End Points
     # End Point to Main Page
     path("",views.index,name='index'),
-    
-    
+
+    #accessing kamid
+    path("KAMIDforleads/",views.KAMIDforleads,name='KAMIDforleads'),
+
     # All endpoints related to Leads
     path("viewLeads/",views.viewLeads,name='viewLeads'),
     path("createLeads/",views.createLeads,name='createLeads'),

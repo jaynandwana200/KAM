@@ -101,8 +101,6 @@
       <select class="form-select" style="padding: 12px;border: 1px solid #ccc;border-radius: 4px;box-sizing: border-box;margin-top: 6px;margin-bottom: 16px;resize: vertical;" aria-label="Default select example" name="currentStatus" id="textarea">
         <option selected>Current Status</option>
         <option value="new">New</option>
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
       </select>
       
       <label for="telephone">Call Frequency</label>
@@ -111,8 +109,13 @@
       <label for="telephone">Call Time</label>
       <input type="text" id="phoneno" name="time" placeholder="00:00:00">
 
-      <label for="subject">Key Account Manager ID</label>
-      <input type="text" id="subjec" name="KAMID" placeholder="123"></textarea>
+
+      <label for="Status">Key Account Manager ID</label>
+      <select class="form-select" style="padding: 12px;border: 1px solid #ccc;border-radius: 4px;box-sizing: border-box;margin-top: 6px;margin-bottom: 16px;resize: vertical;" aria-label="Default select example" name="KAMID" id="textarea">
+      {% for item in KAMID %}
+        <option value="{{item.KAMID}}">{{item.KAMID}}</option>
+      {% endfor %}
+      </select>
 
       <input type="submit" value="Submit">
     </form>

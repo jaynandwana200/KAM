@@ -1,7 +1,8 @@
 from celery import shared_task
 from datetime import date
 import datetime
-from .models import leads, interactionLogging
+from .views import sendMailInteraction
+from .models import leads, interactionLogging, KAMmail
 import logging
 
 logger = logging.getLogger(__name__)
@@ -10,7 +11,6 @@ date_format = "%Y/%m/%d"
 
 @shared_task(bind=True)
 def generateInteractions(self):
-
     # accessing all leads to Auto generate interactions according to call frequency
     try:
         allLeads = leads.objects.all()
@@ -35,6 +35,19 @@ def generateInteractions(self):
                         time=item.time,
                         leadID=item,
                     )
+                    # sending mail on interaction generation
+                    name = str(item.restaurantName)
+                    number  = str(item.contactNumber)
+
+                    #getting mail id of KAMID
+                    try:
+                        mail = KAMmail.objects.filter(KAMID = item.KAMID.KAMID).get()
+                    except:
+                        return None
+                    print('sendingmail')
+                    print(str(item.leadID))
+                    sendMailInteraction('new', str(item.leadID),"call", "Auto Generated", "No", str(nextCallDate), str(item.time), mail.KAMmailid,name,number)
+                    
                     saveInteraction.save()
                 except:
                     return None
@@ -42,5 +55,6 @@ def generateInteractions(self):
             # updating lastCallMade
             if prevDate == date.today() - datetime.timedelta(days=item.callFrequency):
                 prevDate = date.today() - datetime.timedelta(days=1)
+
 
     return None

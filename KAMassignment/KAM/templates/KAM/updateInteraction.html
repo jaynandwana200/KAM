@@ -113,8 +113,12 @@
         {% endif %}
       </select>
 
-      <label for="EmailID">Date</label>
+      <label for="EmailID">Time</label>
       <input type="text" id="countr" name="date" value='{{interactionObject.date|date:"Y-m-d"}}'>
+
+      <label for="EmailID">Date</label>
+      <input type="text" id="countr" name="time" value='{{interactionObject.time}}'>
+
       
 
       <input type="submit" value="Submit">

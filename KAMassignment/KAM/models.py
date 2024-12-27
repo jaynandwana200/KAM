@@ -3,6 +3,11 @@ import datetime
 
 
 # Create your models here.
+class KAMmail(models.Model):
+    KAMID = models.CharField(primary_key=True,max_length=10)
+    KAMmailid = models.EmailField(default="abc@gmail.com")
+
+
 class leads(models.Model):
     leadID = models.BigAutoField(primary_key=True)
     restaurantName = models.CharField(max_length=50)
@@ -12,7 +17,7 @@ class leads(models.Model):
     country = models.CharField(max_length=20, default="India")
     contactNumber = models.CharField(max_length=10)
     currentStatus = models.CharField(max_length=10)
-    KAMID = models.CharField(max_length=10)
+    KAMID = models.ForeignKey(KAMmail, on_delete=models.CASCADE)
     callFrequency = models.IntegerField(default=10)
     time = models.TimeField(default=datetime.time(00, 00, 00))
     lastCallMade = models.DateField(default=datetime.date)

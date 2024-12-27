@@ -1,16 +1,72 @@
 from django.shortcuts import render, HttpResponse
-from .models import leads, interactionLogging, tracking
+from .models import leads, interactionLogging, tracking, KAMmail
 from datetime import date
-from .tasks import generateInteractions
+from django.core.mail import send_mail
+from KAMassignment.settings import EMAIL_HOST_USER
 import datetime
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-def test_celery(request):
-    generateInteractions(request).delay()
-    return HttpResponse("Testing celery")
+# send mail to new KAM on new Task allotment
+def sendMail(kid,KAMmailid,resAddress,number,status,City,State,Country,name,allocationStatus,newKAMid = "NULL"):
+    
+    finalStatement = ""
+
+    if(allocationStatus == 'allocate'):
+        subject = "New lead allocated to Key Account Manager ID :  " + kid
+        finalStatement = "Please initialize interaction with the Restaurant"
+
+    elif(allocationStatus == 'deallocate'):
+        subject = "lead deallocated to Key Account Manager ID :  " + kid
+        finalStatement = "Please handover lead to Key Account Manager ID  :  " + newKAMid
+
+    message = (
+        "Details of allocated lead : \n \n"
+        + "Restaurant Name  :  " + name
+        + "\n"
+        + "Address  :  " + resAddress + ", " + City + ", " + State + ", " + Country
+        + "\n"
+        + "Contact Number  :  " + number
+        + "\n"
+        + "Status  :  " + status
+        + "\n \n" 
+        +finalStatement
+    )
+    recipient_list = [KAMmailid]
+    send_mail(subject, message, EMAIL_HOST_USER, recipient_list, fail_silently=True)
+
+
+#send mail new/update interaction
+def sendMailInteraction(interactionStatus, leadID,type, notes, followUp, Date, time, mail,name,number):
+
+    if(interactionStatus == "new"):
+        subject = "New interaction scheduled for Lead ID  :  " + leadID
+        firstStatement = "Details of Scheduled Interaction  : \n \n"
+    elif(interactionStatus == "update"):
+        subject = "Interaction Updated for Lead ID  :  " + leadID
+        firstStatement = "Details of Updated Interaction  : \n \n"
+
+    message = (
+        firstStatement
+        + "Restaurant Name  :  " + name
+        + "\n"
+        + "Contact Number : " + number
+        + "\n"
+        + "Type  :  " + type
+        + "\n"
+        + "Notes  :  " + notes
+        + "\n"
+        + "Follow Up  :  " + followUp
+        + "\n"
+        + "Date  :  " + Date
+        + "\n"
+        + "Time  :  " + time + " Hrs "
+        + "\n \n"
+    )
+    recipient_list = [mail]
+    send_mail(subject, message, EMAIL_HOST_USER, recipient_list, fail_silently=True)
 
 
 # Main Page
@@ -46,6 +102,19 @@ def index(request):
     return render(request, "KAM/index.html", params)
 
 
+# get KAMID for createleads
+def KAMIDforleads(request):
+
+    try:
+        allKAMID = KAMmail.objects.all()
+    except:
+        return index(request)
+
+    params = {"KAMID": allKAMID}
+
+    return render(request, "KAM/createLeads.html", params)
+
+
 # creating lead
 def createLeads(request):
 
@@ -74,6 +143,12 @@ def createLeads(request):
     ):
         return render(request, "KAM/createLeads.html")
 
+    # finding object related to KAMID
+    try:
+        kamID = KAMmail.objects.filter(KAMID=KID).get()
+    except:
+        return createLeads(request)
+
     # creating record in table
     try:
         create = leads(
@@ -81,7 +156,7 @@ def createLeads(request):
             address=resAddress,
             contactNumber=number,
             currentStatus=status,
-            KAMID=KID,
+            KAMID=kamID,
             callFrequency=callFreq,
             lastCallMade=date.today(),
             city=City,
@@ -93,6 +168,11 @@ def createLeads(request):
     except:
         return index(request)
 
+    # seding mail To KAM about lead allocated to it
+
+    sendMail(KID,kamID.KAMmailid,resAddress,number,status,City,status,Country,name,"allocate")
+
+
     return index(request)
 
 
@@ -102,10 +182,11 @@ def getLeadIDForUpdateLead(request):
 
     try:
         leadObject = leads.objects.filter(leadID=leadId).get()
+        KAMID = KAMmail.objects.all()
     except:
         return index(request)
 
-    params = {"leadObject": leadObject}  # used to store parameters
+    params = {"leadObject": leadObject, "KAMID": KAMID}  # used to store parameters
 
     return render(request, "KAM/updateLeads.HTML", params)
 
@@ -272,23 +353,43 @@ def updateLeads(request):
     callFreq = request.POST.get("callFrequency", "")
     KAMId = request.POST.get("KAMID", "")
 
+    # finding KAMID to get old KAMID mail if modified
+    try:
+        oldKAMID = leads.objects.filter(leadID = leadId).get()
+        oldKAMIDmail = KAMmail.objects.filter(KAMID = oldKAMID.KAMID.KAMID).get()
+    except:
+        oldKAMID = None
+        oldKAMIDmail= None
+
+    # getting KAMID object as it is a foreign key
+    try:
+        ID = KAMmail.objects.filter(KAMID=KAMId).get()
+    except:
+        return updateLeads(request)
+
     # deleting all interactions if status updated to inactive
     if status == "inactive":
         interactionLogging.objects.filter(leadID__leadID__contains=leadId).delete()
 
-    # try:
-    leads.objects.filter(leadID=leadId).update(
-        restaurantName=name,
-        address=location,
-        city=City,
-        state=State,
-        country=Country,
-        contactNumber=number,
-        currentStatus=status,
-        callFrequency=callFreq,
-        KAMID=KAMId,
-    )
-    # excreturn index(request)
+    try:
+        leads.objects.filter(leadID=leadId).update(
+            restaurantName=name,
+            address=location,
+            city=City,
+            state=State,
+            country=Country,
+            contactNumber=number,
+            currentStatus=status,
+            callFrequency=callFreq,
+            KAMID=ID,
+        )
+    except:
+        return index(request)
+
+    # seding mail to respective KAMID
+    if(KAMId != oldKAMIDmail.KAMID):
+        sendMail(KAMId,ID.KAMmailid,location,number,status,City,status,Country,name,"allocate")
+        sendMail(oldKAMIDmail.KAMID,oldKAMIDmail.KAMmailid,location,number,status,City,status,Country,name,"deallocate",KAMId)
 
     return viewLeads(request, leadId)
 
@@ -331,6 +432,16 @@ def addInteraction(request):
         addinteraction.save()
     except:
         return index(request)
+
+    # getting KAMID for fetch mail ID
+    try:
+        KAMid = leads.objects.filter(leadID = ID).get()
+        mail = KAMmail.objects.filter(KAMID = KAMid.KAMID)
+    except:
+        return index(request)
+
+    # Sending mail to KAMID about new interaction scheduling
+    sendMailInteraction("new", ID,Type, Note, follow, Date, Time, mail)
 
     return viewLeads(request, ID)
 
@@ -393,6 +504,29 @@ def getLeadIDForUpdateInteraction(request):
     return render(request, "KAM/updateInteraction.HTML", params)
 
 
+# chnage 12 hr to 24 hr format
+def convert24(s = ""):
+
+    hrs = int(s[0:2])
+    mins = s[3:5]
+    period = s[6:10]
+    time = ""
+
+    print(hrs)
+    print(mins)
+    print(period)
+
+    if(period == "a.m." and hrs == 12):
+        time = "00:00:00"
+    elif(period == "a.m."):
+            time = str(hrs) + ":"+ mins + ":00"
+    else:
+        hrs += 12
+        time = str(hrs) + ":" + mins + ":00"
+
+    return time
+
+
 # update Interactions
 def updateInteraction(request):
 
@@ -401,13 +535,34 @@ def updateInteraction(request):
     Notes = request.POST.get("notes", "")
     FollowUps = request.POST.get("followUp", "")
     Date = request.POST.get("date", "")
+    Time = request.POST.get("time", "")
+    Time = convert24(Time)
+    
 
     try:
         interactionLogging.objects.filter(interactionID=interactionId).update(
-            type=Type, notes=Notes, followUp=FollowUps, date=Date
+            type=Type, notes=Notes, followUp=FollowUps, date=Date, time = Time
         )
     except:
         return index(request)
+
+    # getting leadid
+    try:
+        leadObject = interactionLogging.objects.filter(interactionID = interactionId).get()
+        ID = leadObject.leadID.leadID
+    except:
+        return index(request)
+    
+    # getting mailID of KAMID
+    try:
+        mail = KAMmail.objects.filter(KAMID = leadObject.leadID.KAMID.KAMID).get()
+    except:
+        return index(request)
+
+    #send mail to KAM about update in interaction 
+    restaurantName = leadObject.leadID.restaurantName
+    restaurantNumber = leadObject.leadID.contactNumber
+    sendMailInteraction("update", str(ID),Type, Notes, FollowUps, Date, Time, mail.KAMmailid,restaurantName,restaurantNumber)
 
     return index(request)
 

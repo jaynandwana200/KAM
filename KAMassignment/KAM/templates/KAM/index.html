@@ -41,13 +41,16 @@
             <li class="nav-item">
               <a class="nav-link active" href="../" tabindex="-1">Home Page</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="../createLeads">Create Lead</a>
-            </li>
             <form class="d-flex" action="../searchResult/" method="post">
               <input style="width:700px;" class="form-control me-2" type="search" name = "searchResult" placeholder="Enter Lead Details" aria-label="Search">{% csrf_token %}
               <button class="btn btn-outline-success" type="submit"><i class="fa fa-search"></i></button>
             </form>
+            <li class="nav-item" style="margin-left: 10px;">
+              <form class="d-flex" action="../KAMIDforleads/" method="post">
+                <input class="form-control me-2" type="hidden" name="KAMID">{% csrf_token %}
+                <button class="btn btn-outline-success" type="submit">Create Lead</button>
+              </form>
+            </li>
           </ul>
         </div>
       </div>
@@ -78,7 +81,7 @@
               <td>{{lead.restaurantName}}</td>
               <td>{{lead.address}}</td>
               <td>{{lead.currentStatus}}</td>
-              <td>{{lead.KAMID}}</td>
+              <td>{{lead.KAMID.KAMID}}</td>
               <td><form action="../viewLeads/" method="POST"><input type="hidden" name="leadid" value="{{lead.leadID}}">{% csrf_token %}<button type="submit" class="btn btn-primary btn-sm">View</button></form></td>
             </tr>
         {% endfor %}
