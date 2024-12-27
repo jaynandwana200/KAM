@@ -88,11 +88,36 @@
       <label for="address">Address</label>
       <input type="text" id="email" name="address" value="{{leadObject.address}}">
 
+      <label for="address">City</label>
+      <input type="text" id="email" name="city" value="{{leadObject.city}}">
+
+      <label for="address">State</label>
+      <input type="text" id="email" name="state" value="{{leadObject.state}}">
+
+      <label for="address">Country</label>
+      <input type="text" id="email" name="country" value="{{leadObject.country}}">
+
       <label for="telephone">Contact No</label>
       <input type="tel" id="phoneno" name="contactNo" value="{{leadObject.contactNumber}}">
+      
+      <label for="Status">Current Status</label>
+      <select class="form-select" style="padding: 12px;border: 1px solid #ccc;border-radius: 4px;box-sizing: border-box;margin-top: 6px;margin-bottom: 16px;resize: vertical;" aria-label="Default select example" name="currentStatus" id="textarea">
+        <option selected value="{{leadObject.currentStatus}}">{{leadObject.currentStatus}}</option>
+        {% if leadObject.currentStatus != 'new' %}
+        <option value="new">New</option>
+        {% endif %}
+        
+        {% if leadObject.currentStatus != 'active' %}
+        <option value="active">Active</option>
+        {% endif %}
+        
+        {% if leadObject.currentStatus != 'active' %}
+        <option value="inactive">Inactive</option>
+        {% endif %}
+      </select>
 
-      <label for="country">Current Status</label>
-      <input type="text" id="countr" name="currentStatus" value="{{leadObject.currentStatus}}">
+      <label for="Status">Call Frequency</label>
+      <input type="text" id="phoneno" name="callFrequency" value="{{leadObject.callFrequency}}">
 
       <label for="subject">Key Account Manager ID</label>
       <input type="text" id="subjec" name="KAMID" value="{{leadObject.KAMID}}"></textarea>

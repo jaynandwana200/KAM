@@ -32,25 +32,25 @@
             </form>
             <li class="nav-item">
               <form class="d-flex" action="../getLeadIDForInteraction/" method="post">
-                <input class="form-control me-2" type="hidden" name="leadID" value="{{leadData.leadID}}">{% csrf_token %}
+                <input class="form-control me-2" type="hidden" name="leadID" value="{{leadData.0.leadID}}">{% csrf_token %}
                 <button class="btn btn-outline-success" type="submit">Add Interaction</button>
               </form>
             </li>
             <li class="nav-item">
               <form class="d-flex" action="../getLeadIDForTracker/" method="post">
-                <input class="form-control me-2" type="hidden" name="leadID" value="{{leadData.leadID}}">{% csrf_token %}
+                <input class="form-control me-2" type="hidden" name="leadID" value="{{leadData.0.leadID}}">{% csrf_token %}
                 <button class="btn btn-outline-success" type="submit">Add Tracker</button>
               </form>
             </li>
             <li class="nav-item">
               <form class="d-flex" action="../deleteLead/" method="post">
-                <input class="form-control me-2" type="hidden" name="LID" value="{{leadData.leadID}}">{% csrf_token %}
+                <input class="form-control me-2" type="hidden" name="LID" value="{{leadData.0.leadID}}">{% csrf_token %}
                 <button class="btn btn-outline-success" type="submit">Delete Lead</button>
               </form>
             </li>
             <li class="nav-item">
               <form class="d-flex" action="../getLeadIDForUpdateLead/" method="post">
-                <input class="form-control me-2" type="hidden" name="LeadID" value="{{leadData.leadID}}">{% csrf_token %}
+                <input class="form-control me-2" type="hidden" name="LeadID" value="{{leadData.0.leadID}}">{% csrf_token %}
                 <button class="btn btn-outline-success" type="submit">Update Lead</button>
               </form>
             </li>
@@ -64,14 +64,18 @@
       <div style="font-size: larger;font-weight: bold;">Lead Details</div> 
     </div>
     <ul class="list-group" >
-      <li class="list-group-item">LeadID : {{leadData.leadID}}</li>
-      <li class="list-group-item">Restaurant Name : {{leadData.restaurantName}}</li>
-      <li class="list-group-item">Address : {{leadData.address}}</li>
-      <li class="list-group-item">Contact Number : {{leadData.contactNumber}}</li>
-      <li class="list-group-item">Current Status : {{leadData.currentStatus}}</li>
-      <li class="list-group-item">Call Frequency : {{leadData.callFrequency}}</li>
-      <li class="list-group-item">Last Call Made : {{leadData.lastCallMade}}</li>
-      <li class="list-group-item">KeyAccountManagerID : {{leadData.KAMID}}</li>
+      <li class="list-group-item">LeadID : {{leadData.0.leadID}}</li>
+      <li class="list-group-item">Restaurant Name : {{leadData.0.restaurantName}}</li>
+      <li class="list-group-item">Address : {{leadData.0.address}}</li>
+      <li class="list-group-item">City : {{leadData.0.city}}</li>
+      <li class="list-group-item">State : {{leadData.0.state}}</li>
+      <li class="list-group-item">Country : {{leadData.0.country}}</li>
+      <li class="list-group-item">Contact Number : {{leadData.0.contactNumber}}</li>
+      <li class="list-group-item">Current Status : {{leadData.0.currentStatus}}</li>
+      <li class="list-group-item">Call Frequency : {{leadData.0.callFrequency}}</li>
+      <li class="list-group-item">Call Time : {{leadData.0.time}}</li>
+      <li class="list-group-item">Last Call Made : {{leadData.0.lastCallMade}}</li>
+      <li class="list-group-item">KeyAccountManagerID : {{leadData.0.KAMID}}</li>
     </ul>
 
 

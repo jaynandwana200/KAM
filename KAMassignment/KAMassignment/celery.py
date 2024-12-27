@@ -1,6 +1,5 @@
 from __future__ import absolute_import, unicode_literals
 import os
-
 from celery import Celery
 from celery.schedules import crontab
 from django.conf import settings
@@ -18,7 +17,7 @@ app.conf.beat_schedule = {
 
     'check_and_generate_new_interaction' : {
         'task' : 'KAM.tasks.generateInteractions',
-        'schedule' : crontab(hour=0,minute=0), #time of day when task will run Automatically ( UTC )
+        'schedule' : crontab(hour=3,minute=24), #time of day when task will run Automatically ( UTC )
     }
 }
 

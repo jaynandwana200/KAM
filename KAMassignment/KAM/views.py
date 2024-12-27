@@ -1,10 +1,16 @@
 from django.shortcuts import render, HttpResponse
 from .models import leads, interactionLogging, tracking
 from datetime import date
+from .tasks import generateInteractions
 import datetime
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def test_celery(request):
+    generateInteractions(request).delay()
+    return HttpResponse("Testing celery")
 
 
 # Main Page
@@ -164,55 +170,33 @@ def createTracker(request):
 
 # viewCurrentLeads
 def viewLeads(request, leadIDFetchFromOtherFunc="-1"):
-    try:
-        allLeads = leads.objects.all()  # Fetching all leads data from database
-    except:
-        allLeads = None
-
-    try:
-        allInteractions = (
-            interactionLogging.objects.all()
-        )  # Fetching all interaction data from database
-    except:
-        allInteractions = None
-
-    try:
-        allTrackingData = (
-            tracking.objects.all()
-        )  # Fetching all tracking data from database
-    except:
-        allTrackingData = None
 
     # accessing leadid from index page
-    leadID = request.POST.get("leadid", "0")
+    leadId = request.POST.get("leadid", "0")
 
     # if function fired from createTracking then get value of leadIDFromCreateTracker into leadId
-    if leadID == "0":
-        leadID = leadIDFetchFromOtherFunc
+    if leadIDFetchFromOtherFunc != "-1":
+        leadId = leadIDFetchFromOtherFunc
 
-    leadData = 0  # will contain lead data
-    interactionsData = []
-    trackingData = []
+    try:
+        leadData = leads.objects.filter(
+            leadID=leadId
+        )  # Fetching leads data from database
+    except:
+        leadData = None
 
-    # None Cannot be iterated
-    # processing allLeads to get data related to leadId
-    if allLeads != None:
-        for lead in allLeads:
-            if str(lead.leadID) == leadID:
-                leadData = lead
-                break
+    try:
+        interactionsData = interactionLogging.objects.filter(
+            leadID__leadID__contains=leadId
+        )
+    except:
+        interactionsData = None
 
-    # processing allLeads to get data related to interactions related to lead
-    if allInteractions != None:
-        for interaction in allInteractions:
-            if str(interaction.leadID.leadID) == leadID:
-                interactionsData.append(interaction)
-
-    # processing alltrackingdata to get tracking details related tot lead
-    if allTrackingData != None:
-        for track in allTrackingData:
-            if str(track.leadID.leadID) == leadID:
-                trackingData.append(track)
+    try:
+        # Fetching tracking data from database
+        trackingData = tracking.objects.filter(leadID__leadID__contains=leadId)
+    except:
+        trackingData = None
 
     params = {
         "leadData": leadData,
@@ -257,7 +241,9 @@ def searchResult(request):
                 searchInput in items.restaurantName
                 or searchInput == items.KAMID
                 or searchInput in items.address
-                or searchInput == items.currentStatus
+                or searchInput == items.city
+                or searchInput == items.state
+                or searchInput == items.country
             ):
                 leadID.add(items)
                 idForInteraction.append(items.leadID)
@@ -278,20 +264,31 @@ def updateLeads(request):
     leadId = request.POST.get("leadId", "")
     name = request.POST.get("name", "")
     location = request.POST.get("address", "")
+    City = request.POST.get("city", "")
+    State = request.POST.get("state", "")
+    Country = request.POST.get("country", "")
     number = request.POST.get("contactNo", "")
     status = request.POST.get("currentStatus", "")
+    callFreq = request.POST.get("callFrequency", "")
     KAMId = request.POST.get("KAMID", "")
 
-    try:
-        leads.objects.filter(leadID=leadId).update(
-            restaurantName=name,
-            address=location,
-            contactNumber=number,
-            currentStatus=status,
-            KAMID=KAMId,
-        )
-    except:
-        return index(request)
+    # deleting all interactions if status updated to inactive
+    if status == "inactive":
+        interactionLogging.objects.filter(leadID__leadID__contains=leadId).delete()
+
+    # try:
+    leads.objects.filter(leadID=leadId).update(
+        restaurantName=name,
+        address=location,
+        city=City,
+        state=State,
+        country=Country,
+        contactNumber=number,
+        currentStatus=status,
+        callFrequency=callFreq,
+        KAMID=KAMId,
+    )
+    # excreturn index(request)
 
     return viewLeads(request, leadId)
 
