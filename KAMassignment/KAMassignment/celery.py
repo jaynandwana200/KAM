@@ -17,7 +17,7 @@ app.conf.beat_schedule = {
 
     'check_and_generate_new_interaction' : {
         'task' : 'KAM.tasks.generateInteractions',
-        'schedule' : crontab(hour=16,minute=18), #time of day when task will run Automatically ( UTC )
+        'schedule' : crontab(hour=17,minute=15), #time of day when task will run Automatically ( UTC )
     }
 }
 
