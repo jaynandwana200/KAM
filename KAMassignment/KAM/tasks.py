@@ -44,10 +44,7 @@ def generateInteractions(self):
                         mail = KAMmail.objects.filter(KAMID = item.KAMID.KAMID).get()
                     except:
                         return None
-                    print('sendingmail')
-                    print(str(item.leadID))
                     sendMailInteraction('new', str(item.leadID),"call", "Auto Generated", "No", str(nextCallDate), str(item.time), mail.KAMmailid,name,number)
-                    
                     saveInteraction.save()
                 except:
                     return None
