@@ -501,7 +501,7 @@ def getLeadIDForUpdateInteraction(request):
 
     params = {"interactionObject": interactionObject}
 
-    return render(request, "KAM/updateInteraction.HTML", params)
+    return render(request, "KAM/updateInteraction.html", params)
 
 
 # chnage 12 hr to 24 hr format

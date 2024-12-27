@@ -3,6 +3,7 @@ asgiref==3.8.1
 async-timeout==5.0.1
 billiard==4.2.1
 celery==5.4.0
+cffi==1.17.1
 click==8.1.8
 click-didyoumean==0.3.1
 click-plugins==1.1.1
@@ -16,10 +17,14 @@ django-celery==3.1.17
 django-celery-beat==2.7.0
 django-celery-results==2.5.1
 django-timezone-field==7.0
+geographiclib==2.0
+h3==4.1.2
 kombu==5.4.2
+numpy==2.0.2
 pkgconfig==1.5.5
 prompt_toolkit==3.0.48
 psycopg2-binary==2.9.10
+pycparser==2.22
 PyMySQL==1.1.1
 python-crontab==3.2.0
 python-dateutil==2.9.0.post0
