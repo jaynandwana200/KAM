@@ -3,12 +3,18 @@ from . import views
 
 urlpatterns = [
 
-    ## Basic Rest API End Points
+
+    path("test/",views.testing,name='testing'),
+
+
     # End Point to Main Page
     path("",views.index,name='index'),
 
     #accessing kamid
     path("KAMIDforleads/",views.KAMIDforleads,name='KAMIDforleads'),
+    path("addKAM/",views.addKAM,name='addKAM'),
+    path("deleteKAM/",views.deleteKAM,name='deleteKAM'),
+    path("showKAM/",views.showKAM,name='showKAM'),
 
     # All endpoints related to Leads
     path("viewLeads/",views.viewLeads,name='viewLeads'),

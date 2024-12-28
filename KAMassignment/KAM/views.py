@@ -3,10 +3,64 @@ from .models import leads, interactionLogging, tracking, KAMmail
 from datetime import date
 from django.core.mail import send_mail
 from KAMassignment.settings import EMAIL_HOST_USER
+from .tasks import generateInteractions
 import datetime
 import logging
 
 logger = logging.getLogger(__name__)
+
+####################
+def testing(request):
+    print("testing running")
+    generateInteractions.delay()
+    return HttpResponse("Celery running")
+######################
+
+
+
+## add KAM
+def addKAM(request):
+
+    mail = request.POST.get("email","")
+
+
+    print("hello")
+    print(mail)
+    # saving data in KAMmail table
+    try:
+        object = KAMmail(KAMmailid = mail)
+        object.save()
+    except:
+        return index(request)
+
+    return showKAM(request)
+
+
+## show KAM
+def showKAM(request):
+
+    #fetching all KAM details
+    try:
+        allKAM = KAMmail.objects.all()
+    except:
+        return index(request)
+    
+    params = {"KAM": allKAM}
+
+    return render(request,'KAM/addKAM.html',params)
+
+
+## delete KAM
+def deleteKAM(request):
+
+    KAMId = request.POST.get("KAMID","")
+
+    try:
+        KAMmail.objects.filter(KAMID = KAMId).delete()
+    except:
+        return index(request)
+    
+    return showKAM(request)
 
 
 # send mail to new KAM on new Task allotment

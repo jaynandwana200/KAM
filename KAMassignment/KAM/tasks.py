@@ -1,7 +1,7 @@
 from celery import shared_task
 from datetime import date
 import datetime
-from .views import sendMailInteraction
+# from .views import sendMailInteraction
 from .models import leads, interactionLogging, KAMmail
 import logging
 
@@ -11,6 +11,7 @@ date_format = "%Y/%m/%d"
 
 @shared_task(bind=True)
 def generateInteractions(self):
+    print("celery server running")
     # accessing all leads to Auto generate interactions according to call frequency
     try:
         allLeads = leads.objects.all()
@@ -44,7 +45,7 @@ def generateInteractions(self):
                         mail = KAMmail.objects.filter(KAMID = item.KAMID.KAMID).get()
                     except:
                         return None
-                    sendMailInteraction('new', str(item.leadID),"call", "Auto Generated", "No", str(nextCallDate), str(item.time), mail.KAMmailid,name,number)
+                    # sendMailInteraction('new', str(item.leadID),"call", "Auto Generated", "No", str(nextCallDate), str(item.time), mail.KAMmailid,name,number)
                     saveInteraction.save()
                 except:
                     return None

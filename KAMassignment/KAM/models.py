@@ -4,7 +4,7 @@ import datetime
 
 # Create your models here.
 class KAMmail(models.Model):
-    KAMID = models.CharField(primary_key=True,max_length=10)
+    KAMID = models.BigAutoField(primary_key=True)
     KAMmailid = models.EmailField(default="abc@gmail.com")
 
 
