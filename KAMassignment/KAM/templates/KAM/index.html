@@ -57,6 +57,12 @@
                 <button class="btn btn-outline-success" type="submit">KAM</button>
               </form>
             </li>
+            <li class="nav-item" style="margin-left: 10px;">
+              <form class="d-flex" action="../performanceTracking/" method="post">
+                <input class="form-control me-2" type="hidden" name="KAMID">{% csrf_token %}
+                <button class="btn btn-outline-success" type="submit">Track Performance</button>
+              </form>
+            </li>
           </ul>
         </div>
       </div>

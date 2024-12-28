@@ -3,10 +3,6 @@ from . import views
 
 urlpatterns = [
 
-
-    path("test/",views.testing,name='testing'),
-
-
     # End Point to Main Page
     path("",views.index,name='index'),
 
@@ -15,6 +11,10 @@ urlpatterns = [
     path("addKAM/",views.addKAM,name='addKAM'),
     path("deleteKAM/",views.deleteKAM,name='deleteKAM'),
     path("showKAM/",views.showKAM,name='showKAM'),
+
+    #performance Tracking 
+    path("performanceTracking/",views.performanceTracking,name='performanceTracking'),
+    
 
     # All endpoints related to Leads
     path("viewLeads/",views.viewLeads,name='viewLeads'),
