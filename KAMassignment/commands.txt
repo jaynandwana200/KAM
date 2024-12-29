@@ -2,8 +2,16 @@ run command : python manage.py runserver
 celery run cmd : celery -A KAMassignment.celery worker --pool=solo -l info
 celery beat run cmd : celery -A KAMassignment beat -l info
 
-Note : Please run above commands on different terminals
+Note : Please run above commands on different terminals for windows
 
-update db : python manage.py migrate
+
+Note : command for Ubuntu
+cmd : celery -A KAMassignment.celery worker --pool=solo --beat -l info
+
+
+update db : 
+python manage.py makemigrations
+python manage.py migrate
+
 createsuperuser/Admin : python manage.py createsuperuser  // accesible from localhost/Admin
 

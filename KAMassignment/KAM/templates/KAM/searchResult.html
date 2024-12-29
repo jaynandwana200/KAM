@@ -52,7 +52,7 @@
     </nav>
 
     <div class="alert alert-primary" role="alert">
-      <div style="font-size: larger;font-weight: bold;"> Active Leads</div> 
+      <div style="font-size: larger;font-weight: bold;"> Leads</div> 
     </div>
 
 
@@ -76,7 +76,7 @@
               <td>{{lead.restaurantName}}</td>
               <td>{{lead.address}}</td>
               <td>{{lead.currentStatus}}</td>
-              <td>{{lead.KAMID}}</td>
+              <td>{{lead.KAMID.KAMID}}</td>
               <td><form action="../viewLeads/" method="POST"><input type="hidden" name="leadid" value="{{lead.leadID}}">{% csrf_token %}<button type="submit" class="btn btn-primary btn-sm">View</button></form></td>
             </tr>
         {% endfor %}

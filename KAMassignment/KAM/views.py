@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render
 from .models import leads, interactionLogging, tracking, KAMmail
 from datetime import date
 from django.core.mail import send_mail
@@ -53,8 +53,6 @@ def addKAM(request):
 
     mail = request.POST.get("email", "")
 
-    print("hello")
-    print(mail)
     # saving data in KAMmail table
     try:
         object = KAMmail(KAMmailid=mail)
@@ -498,7 +496,7 @@ def updateLeads(request):
         return index(request)
 
     # seding mail to respective KAMID
-    if KAMId != oldKAMIDmail.KAMID:
+    if int(KAMId) != oldKAMIDmail.KAMID:
         sendMail(
             KAMId,
             ID.KAMmailid,
@@ -512,7 +510,7 @@ def updateLeads(request):
             "allocate",
         )
         sendMail(
-            oldKAMIDmail.KAMID,
+            str(oldKAMIDmail.KAMID),
             oldKAMIDmail.KAMmailid,
             location,
             number,
@@ -664,6 +662,7 @@ def updateInteraction(request):
     Date = request.POST.get("date", "")
     Time = request.POST.get("time", "")
     Time = convert24(Time)
+
 
     # getting leadid
     try:
