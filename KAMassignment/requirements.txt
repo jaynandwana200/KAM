@@ -17,7 +17,6 @@ django-celery==3.1.17
 django-celery-beat==2.7.0
 django-celery-results==2.5.1
 django-timezone-field==7.0
-geographiclib==2.0s
 greenlet==3.1.1
 h3==4.1.2
 kombu==5.4.2
