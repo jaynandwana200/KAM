@@ -9,6 +9,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+
+
+def customhandler404(request, template_name='KAM/404.html'):
+    response = render(request, template_name)
+    response.status_code = 404
+    return response
+
+
 # performance tracking
 # performace of account is based on average orders placed
 # account placing above avg order is well performing account
@@ -20,7 +28,7 @@ def performanceTracking(request):
         totalIntcount = interactionLogging.objects.count()
         countLeads = leads.objects.count()
     except:
-        return index(request)
+        return customhandler404(request)
 
     wellPerforming = []
     underPerforming = []
@@ -58,7 +66,7 @@ def addKAM(request):
         object = KAMmail(KAMmailid=mail)
         object.save()
     except:
-        return index(request)
+        return customhandler404(request)
 
     return showKAM(request)
 
@@ -70,7 +78,7 @@ def showKAM(request):
     try:
         allKAM = KAMmail.objects.all()
     except:
-        return index(request)
+        return customhandler404(request)
 
     params = {"KAM": allKAM}
 
@@ -85,8 +93,7 @@ def deleteKAM(request):
     try:
         KAMmail.objects.filter(KAMID=KAMId).delete()
     except:
-        return index(request)
-
+        return customhandler404(request)
     return showKAM(request)
 
 
@@ -220,7 +227,7 @@ def KAMIDforleads(request):
     try:
         allKAMID = KAMmail.objects.all()
     except:
-        return index(request)
+       return customhandler404(request)
 
     params = {"KAMID": allKAMID}
 
@@ -259,7 +266,7 @@ def createLeads(request):
     try:
         kamID = KAMmail.objects.filter(KAMID=KID).get()
     except:
-        return createLeads(request)
+        return customhandler404(request)
 
     # creating record in table
     try:
@@ -278,7 +285,7 @@ def createLeads(request):
         )
         create.save()
     except:
-        return index(request)
+        return customhandler404(request)
 
     # seding mail To KAM about lead allocated to it
 
@@ -306,8 +313,8 @@ def getLeadIDForUpdateLead(request):
         leadObject = leads.objects.filter(leadID=leadId).get()
         KAMID = KAMmail.objects.all()
     except:
-        return index(request)
-
+        return customhandler404(request)
+    
     params = {"leadObject": leadObject, "KAMID": KAMID}  # used to store parameters
 
     return render(request, "KAM/updateLeads.HTML", params)
@@ -362,7 +369,7 @@ def createTracker(request):
         )
         addTracker.save()
     except:
-        return index(request)
+        return customhandler404(request)
 
     return viewLeads(request, leadId)
 
@@ -407,8 +414,7 @@ def searchResult(request):
         leadData = leads.objects.all()
         interactionData = interactionLogging.objects.all()
     except:
-        leadData = None
-        interactionData = None
+        return customhandler404(request)
 
     searchInput = request.POST.get(
         "searchResult", "noinput"
@@ -467,14 +473,13 @@ def updateLeads(request):
         oldKAMID = leads.objects.filter(leadID=leadId).get()
         oldKAMIDmail = KAMmail.objects.filter(KAMID=oldKAMID.KAMID.KAMID).get()
     except:
-        oldKAMID = None
-        oldKAMIDmail = None
+        return customhandler404(request)
 
     # getting KAMID object as it is a foreign key
     try:
-        ID = KAMmail.objects.filter(KAMID=KAMId).get()
+        ID = KAMmail.objects.filter(KAMID=int(KAMId)).get()
     except:
-        return updateLeads(request)
+        return customhandler404(request)
 
     # deleting all interactions if status updated to inactive
     if status == "inactive":
@@ -493,7 +498,7 @@ def updateLeads(request):
             KAMID=ID,
         )
     except:
-        return index(request)
+        raise Exception("Can't update data in table")
 
     # seding mail to respective KAMID
     if int(KAMId) != oldKAMIDmail.KAMID:
@@ -560,15 +565,15 @@ def addInteraction(request):
         )
         addinteraction.save()
     except:
-        return index(request)
+        return customhandler404(request)
 
     # getting KAMID for fetch mail ID
     try:
         KAMid = leads.objects.filter(leadID=ID).get()
         mail = KAMmail.objects.filter(KAMID=KAMid.KAMID.KAMID).get()
     except:
-        return index(request)
-
+        return customhandler404(request)
+    
     # Sending mail to KAMID about new interaction scheduling
     sendMailInteraction("new", ID, Type, Note, follow, Date, Time, mail.KAMmailid,KAMid.restaurantName,KAMid.contactNumber)
 
@@ -584,8 +589,8 @@ def deleteInteraction(request):
     try:
         interactionLogging.objects.filter(interactionID=ID).delete()
     except:
-        return index(request)
-
+        return customhandler404(request)
+    
     return index(request)
 
 
@@ -598,7 +603,7 @@ def deleteLead(request):
     try:
         leads.objects.filter(leadID=ID).delete()
     except:
-        return index(request)
+        return customhandler404(request)
 
     return index(request)
 
@@ -613,7 +618,7 @@ def deleteTracking(request):
     try:
         tracking.objects.filter(trackingID=trackingId).delete()
     except:
-        return index(request)
+        return customhandler404(request)
 
     return viewLeads(request, leadID)  # sending leadID to viewLeads
 
@@ -626,7 +631,7 @@ def getLeadIDForUpdateInteraction(request):
             interactionID=interactionId
         ).get()
     except:
-        return index(request)
+        return customhandler404(request)
 
     params = {"interactionObject": interactionObject}
 
@@ -675,7 +680,7 @@ def updateInteraction(request):
         ID = leadObject.leadID.leadID
         mail = KAMmail.objects.filter(KAMID=leadObject.leadID.KAMID.KAMID).get()
     except:
-        return index(request)
+        return customhandler404(request)
 
     # send mail to KAM about update in interaction
     restaurantName = leadObject.leadID.restaurantName
@@ -703,7 +708,7 @@ def getLeadIDForUpdateTracking(request):
     try:
         trackingObject = tracking.objects.filter(trackingID=trackingId).get()
     except:
-        return index(request)
+        return customhandler404(request)
 
     params = {"trackingObject": trackingObject}
 
@@ -727,6 +732,6 @@ def updateTracking(request):
             name=Name, role=Role, phoneNumber=ContactNo, emailID=email
         )
     except:
-        return index(request)
+        return customhandler404(request)
 
     return viewLeads(request, str(leadId))
