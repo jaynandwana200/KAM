@@ -108,6 +108,7 @@ def sendMail(
     State,
     Country,
     name,
+    time,
     allocationStatus,
     newKAMid="NULL",
 ):
@@ -143,6 +144,9 @@ def sendMail(
         + "\n"
         + "Status  :  "
         + status
+        +'\n'
+        + 'Time  :  ' 
+        + time
         + "\n \n"
         + finalStatement
     )
@@ -299,6 +303,7 @@ def createLeads(request):
         status,
         Country,
         name,
+        Time,
         "allocate",
     )
 
@@ -454,6 +459,32 @@ def searchResult(request):
     return render(request, "KAM/searchResult.html", params)
 
 
+# chnage 12 hr to 24 hr format
+def convert24(s=""):
+    st = ""
+    index = 0
+    for val in s:
+        if(val != ':'):
+            st += val
+        else :
+            break
+        index += 1
+    hrs = int(st)
+    mins = s[index+1:index+3]
+    period = s[index+4:10]
+    time = ""
+
+    if period == "a.m." and hrs == 12:
+        time = "00:00:00"
+    elif period == "a.m.":
+        time = str(hrs) + ":" + mins + ":00"
+    else:
+        hrs += 12
+        time = str(hrs) + ":" + mins + ":00"
+
+    return time
+
+
 # updateLeads
 def updateLeads(request):
 
@@ -467,6 +498,8 @@ def updateLeads(request):
     status = request.POST.get("currentStatus", "")
     callFreq = request.POST.get("callFrequency", "")
     KAMId = request.POST.get("KAMID", "")
+    Time = request.POST.get("time", "")
+    Time = convert24(Time)
 
     # finding KAMID to get old KAMID mail if modified
     try:
@@ -496,6 +529,7 @@ def updateLeads(request):
             currentStatus=status,
             callFrequency=callFreq,
             KAMID=ID,
+            time = Time,
         )
     except:
         raise Exception("Can't update data in table")
@@ -512,6 +546,7 @@ def updateLeads(request):
             status,
             Country,
             name,
+            Time,
             "allocate",
         )
         sendMail(
@@ -524,6 +559,7 @@ def updateLeads(request):
             status,
             Country,
             name,
+            Time,
             "deallocate",
             KAMId,
         )
@@ -638,25 +674,6 @@ def getLeadIDForUpdateInteraction(request):
     return render(request, "KAM/updateInteraction.html", params)
 
 
-# chnage 12 hr to 24 hr format
-def convert24(s=""):
-
-    hrs = int(s[0:2])
-    mins = s[3:5]
-    period = s[6:10]
-    time = ""
-
-    if period == "a.m." and hrs == 12:
-        time = "00:00:00"
-    elif period == "a.m.":
-        time = str(hrs) + ":" + mins + ":00"
-    else:
-        hrs += 12
-        time = str(hrs) + ":" + mins + ":00"
-
-    return time
-
-
 # update Interactions
 def updateInteraction(request):
 
@@ -667,7 +684,6 @@ def updateInteraction(request):
     Date = request.POST.get("date", "")
     Time = request.POST.get("time", "")
     Time = convert24(Time)
-
 
     # getting leadid
     try:
