@@ -126,12 +126,18 @@ The application integrates advanced tools like Celery, Celery Beat, Redis, and M
    ```bash
    cd KAM/KAMassignment
    ```
-3. Install dependencies:
+3.  Set up the virtual environment and install requirements:
+  ``` bash
+   virtualenv env
+   cd env/Scripts
+   activate.bat
+  ```
+4. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-4. Set up the MySQL database:
-   - Create a new MYSQL database instance on aws and configure credentials in the settings.py file.
+5. Set up the MySQL database:
+    * Create a new MYSQL database instance on aws and configure credentials in the settings.py file.
    ```
     DATABASES = {
       'default': {
@@ -160,16 +166,12 @@ EMAIL_HOST_PASSWORD = ''
    ```bash
    python manage.py migrate
    ```
-7. Start Redis server:
-   ```bash
-   redis-server
-   ```
-8. Start Celery workers:
+7. Start Celery workers:
    ```bash
    celery -A KAMassignment.celery worker --pool=solo -l info
    celery -A KAMassignment beat -l info
    ```
-9. Run the Django development server:
+8. Run the Django development server:
    ```bash
    python manage.py runserver
    ```
@@ -413,9 +415,6 @@ For additional support, refer to Django’s [official documentation](https://doc
   ```
   Change the `user` to `ubuntu`.
   Save and exit (Ctrl+O, Enter, Ctrl+X).
-
-### Live Link: [Click Here](http://13.55.186.165).
-
 
 ## Usage Guide
 
