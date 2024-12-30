@@ -4,6 +4,7 @@ from datetime import date
 from django.core.mail import send_mail
 from KAMassignment.settings import EMAIL_HOST_USER
 import datetime
+import math
 import logging
 
 logger = logging.getLogger(__name__)
@@ -34,7 +35,7 @@ def performanceTracking(request):
     underPerforming = []
 
     try: #division by zero
-        avgOrders = totalIntcount / countLeads
+        avgOrders = math.ceil(totalIntcount / countLeads)
     except:
         avgOrders = 0
 
@@ -300,7 +301,7 @@ def createLeads(request):
         number,
         status,
         City,
-        status,
+        State,
         Country,
         name,
         Time,
@@ -528,7 +529,7 @@ def updateLeads(request):
             contactNumber=number,
             currentStatus=status,
             callFrequency=callFreq,
-            KAMID=ID,
+            KAMID=KAMId,
             time = Time,
         )
     except:
@@ -655,7 +656,7 @@ def deleteTracking(request):
         tracking.objects.filter(trackingID=trackingId).delete()
     except:
         return customhandler404(request)
-
+    
     return viewLeads(request, leadID)  # sending leadID to viewLeads
 
 
