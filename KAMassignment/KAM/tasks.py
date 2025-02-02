@@ -5,6 +5,7 @@ from .views import sendMailInteraction, customhandler404
 from .models import leads, interactionLogging, KAMmail
 import logging
 from urllib import request
+import threading
 
 logger = logging.getLogger(__name__)
 date_format = "%Y/%m/%d"
@@ -49,18 +50,21 @@ def generateInteractions(self):
                     mail = KAMmail.objects.filter(KAMID=item.KAMID.KAMID).get()
                 except:
                     return customhandler404(request)
-                sendMailInteraction(
-                    "new",
-                    str(item.leadID),
-                    "call",
-                    "Auto Generated",
-                    "No",
-                    str(nextCallDate),
-                    str(item.time),
-                    mail.KAMmailid,
-                    name,
-                    number,
+                thread = threading.Thread(target=sendMailInteraction,
+                    args=[
+                        "new",
+                        str(item.leadID),
+                        "call",
+                        "Auto Generated",
+                        "No",
+                        str(nextCallDate),
+                        str(item.time),
+                        mail.KAMmailid,
+                        name,
+                        number,
+                    ],
                 )
+                thread.start()
                 saveInteraction.save()
 
             # updating lastCallMade

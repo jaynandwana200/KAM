@@ -10,13 +10,13 @@ from django.core.cache import cache
 import datetime
 import math
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
-CACHE_TTL = getattr(settings,"CACHE_TTL",DEFAULT_TIMEOUT)
+CACHE_TTL = getattr(settings, "CACHE_TTL", DEFAULT_TIMEOUT)
 
 
-
-def customhandler404(request, template_name='KAM/404.html'):
+def customhandler404(request, template_name="KAM/404.html"):
     response = render(request, template_name)
     response.status_code = 404
     return response
@@ -30,25 +30,25 @@ def performanceTracking(request):
 
     try:
         leadVal = 4
-        if(cache.get(leadVal)):
+        if cache.get(leadVal):
             allLeads = cache.get(leadVal)
         else:
             allLeads = leads.objects.all()
-            cache.set(leadVal,allLeads)
+            cache.set(leadVal, allLeads)
 
         countVal = 5
-        if(cache.get(countVal)):
+        if cache.get(countVal):
             totalIntcount = cache.get(countVal)
         else:
             totalIntcount = interactionLogging.objects.count()
-            cache.set(countVal,totalIntcount)
-        
+            cache.set(countVal, totalIntcount)
+
         countLeadsVal = 6
-        if(cache.get(countLeadsVal)):
+        if cache.get(countLeadsVal):
             countLeads = cache.get(countLeadsVal)
         else:
             countLeads = leads.objects.count()
-            cache.set(countLeadsVal,countLeads)
+            cache.set(countLeadsVal, countLeads)
 
     except:
         return customhandler404(request)
@@ -56,7 +56,7 @@ def performanceTracking(request):
     wellPerforming = []
     underPerforming = []
 
-    try: #division by zero
+    try:  # division by zero
         avgOrders = math.ceil(totalIntcount / countLeads)
     except:
         avgOrders = 0
@@ -167,8 +167,8 @@ def sendMail(
         + "\n"
         + "Status  :  "
         + status
-        +'\n'
-        + 'Time  :  ' 
+        + "\n"
+        + "Time  :  "
         + time
         + "\n \n"
         + finalStatement
@@ -220,25 +220,25 @@ def sendMailInteraction(
 
 # Main Page
 # similar naming convention used in all functions
-def index(request,deleteLead = 2):
+def index(request, deleteLead=2):
 
     try:
         leadVal = 2
-        if(cache.get(leadVal) and deleteLead == 2):
+        if cache.get(leadVal) and deleteLead == 2:
             allLeads = cache.get(leadVal)
         else:
             allLeads = leads.objects.all()  # Fetching all leads data from database
-            cache.set(leadVal,allLeads)
+            cache.set(leadVal, allLeads)
 
         interactionVal = 3
-        if(cache.get(interactionVal) and deleteLead == 2):
+        if cache.get(interactionVal) and deleteLead == 2:
             allInteractions = cache.get(interactionVal)
         else:
             allInteractions = (
                 interactionLogging.objects.all()
             )  # Fetching all interaction data from database
-            cache.set(interactionVal,allInteractions)
-        
+            cache.set(interactionVal, allInteractions)
+
     except:
         allLeads = None
         allInteractions = None
@@ -266,7 +266,7 @@ def KAMIDforleads(request):
     try:
         allKAMID = KAMmail.objects.all()
     except:
-       return customhandler404(request)
+        return customhandler404(request)
 
     params = {"KAMID": allKAMID}
 
@@ -328,21 +328,26 @@ def createLeads(request):
 
     # seding mail To KAM about lead allocated to it
 
-    sendMail(
-        KID,
-        kamID.KAMmailid,
-        resAddress,
-        number,
-        status,
-        City,
-        State,
-        Country,
-        name,
-        Time,
-        "allocate",
+    thread = threading.Thread(
+        target=sendMail,
+        args=[
+            KID,
+            kamID.KAMmailid,
+            resAddress,
+            number,
+            status,
+            City,
+            State,
+            Country,
+            name,
+            Time,
+            "allocate",
+        ],
     )
 
-    return index(request)
+    thread.start()
+
+    return index(request,101)
 
 
 # fetching lead id for get LeadID
@@ -354,7 +359,7 @@ def getLeadIDForUpdateLead(request):
         KAMID = KAMmail.objects.all()
     except:
         return customhandler404(request)
-    
+
     params = {"leadObject": leadObject, "KAMID": KAMID}  # used to store parameters
 
     return render(request, "KAM/updateLeads.HTML", params)
@@ -415,7 +420,7 @@ def createTracker(request):
 
 
 # viewCurrentLeads
-def viewLeads(request, leadIDFetchFromOtherFunc="-1",deleteLeadVal = 2):
+def viewLeads(request, leadIDFetchFromOtherFunc="-1", deleteLeadVal=2):
 
     # accessing leadid from index page
     leadId = request.POST.get("leadid", "0")
@@ -425,30 +430,30 @@ def viewLeads(request, leadIDFetchFromOtherFunc="-1",deleteLeadVal = 2):
         leadId = leadIDFetchFromOtherFunc
 
     try:
-        if(cache.get(leadId) and deleteLeadVal == 2):
+        if cache.get(leadId) and deleteLeadVal == 2:
             leadData = cache.get(leadId)
         else:
             leadData = leads.objects.filter(
                 leadID=leadId
             )  # Fetching leads data from database
-            cache.set(leadId,leadData)
+            cache.set(leadId, leadData)
 
         interactions = 0
-        if(cache.get(interactions) and deleteLeadVal == 2):
+        if cache.get(interactions) and deleteLeadVal == 2:
             interactionsData = cache.get(interactions)
         else:
             interactionsData = interactionLogging.objects.filter(
                 leadID__leadID__contains=leadId
             )
-            cache.set(interactions,interactionsData)
-        
+            cache.set(interactions, interactionsData)
+
         # Fetching tracking data from database
         track = 1
-        if(cache.get(track) and deleteLeadVal == 2):
+        if cache.get(track) and deleteLeadVal == 2:
             trackingData = cache.get(track)
         else:
             trackingData = tracking.objects.filter(leadID__leadID__contains=leadId)
-            cache.set(track,trackingData)
+            cache.set(track, trackingData)
 
     except:
         leadData = None
@@ -469,22 +474,22 @@ def searchResult(request):
     # fetching data from database
     try:
         leadVal = 2
-        if(cache.get(leadVal)):
+        if cache.get(leadVal):
             leadData = cache.get(leadVal)
             print("Cache called for lead")
         else:
             leadData = leads.objects.all()  # Fetching all leads data from database
-            cache.set(leadVal,leadData)
+            cache.set(leadVal, leadData)
 
         interactionVal = 3
-        if(cache.get(interactionVal)):
+        if cache.get(interactionVal):
             interactionData = cache.get(interactionVal)
         else:
             interactionData = (
                 interactionLogging.objects.all()
             )  # Fetching all interaction data from database
-            cache.set(interactionVal,interactionData)
-        
+            cache.set(interactionVal, interactionData)
+
     except:
         return customhandler404(request)
 
@@ -531,14 +536,14 @@ def convert24(s=""):
     st = ""
     index = 0
     for val in s:
-        if(val != ':'):
+        if val != ":":
             st += val
-        else :
+        else:
             break
         index += 1
     hrs = int(st)
-    mins = s[index+1:index+3]
-    period = s[index+4:10]
+    mins = s[index + 1 : index + 3]
+    period = s[index + 4 : 10]
     time = ""
 
     if period == "a.m." and hrs == 12:
@@ -596,42 +601,48 @@ def updateLeads(request):
             currentStatus=status,
             callFrequency=callFreq,
             KAMID=KAMId,
-            time = Time,
+            time=Time,
         )
     except:
         raise Exception("Can't update data in table")
 
     # seding mail to respective KAMID
     if int(KAMId) != oldKAMIDmail.KAMID:
-        sendMail(
-            KAMId,
-            ID.KAMmailid,
-            location,
-            number,
-            status,
-            City,
-            status,
-            Country,
-            name,
-            Time,
-            "allocate",
+        thread1 = threading.Thread(target=sendMail,
+            args=[
+                KAMId,
+                ID.KAMmailid,
+                location,
+                number,
+                status,
+                City,
+                status,
+                Country,
+                name,
+                Time,
+                "allocate"
+            ],
         )
-        sendMail(
-            str(oldKAMIDmail.KAMID),
-            oldKAMIDmail.KAMmailid,
-            location,
-            number,
-            status,
-            City,
-            status,
-            Country,
-            name,
-            Time,
-            "deallocate",
-            KAMId,
+        thread2 = threading.Thread(target=sendMail,
+            args=[
+                str(oldKAMIDmail.KAMID),
+                oldKAMIDmail.KAMmailid,
+                location,
+                number,
+                status,
+                City,
+                status,
+                Country,
+                name,
+                Time,
+                "deallocate",
+                KAMId,
+            ],
         )
+        thread1.start()
+        thread2.start()
 
-    return viewLeads(request, leadId)
+    return viewLeads(request, leadId,101)
 
 
 # getLeadIDForInteraction
@@ -676,11 +687,27 @@ def addInteraction(request):
         mail = KAMmail.objects.filter(KAMID=KAMid.KAMID.KAMID).get()
     except:
         return customhandler404(request)
-    
-    # Sending mail to KAMID about new interaction scheduling
-    sendMailInteraction("new", ID, Type, Note, follow, Date, Time, mail.KAMmailid,KAMid.restaurantName,KAMid.contactNumber)
 
-    return viewLeads(request, ID)
+    # Sending mail to KAMID about new interaction scheduling
+
+    thread1 = threading.Thread(target=sendMailInteraction,
+        args=[
+            "new",
+            ID,
+            Type,
+            Note,
+            follow,
+            Date,
+            Time,
+            mail.KAMmailid,
+            KAMid.restaurantName,
+            KAMid.contactNumber,
+        ],
+    )
+
+    thread1.start()
+
+    return viewLeads(request, ID,101)
 
 
 # deleteInteraction
@@ -693,8 +720,8 @@ def deleteInteraction(request):
         interactionLogging.objects.filter(interactionID=ID).delete()
     except:
         return customhandler404(request)
-    
-    return index(request,101)
+
+    return index(request, 101)
 
 
 # delete Lead
@@ -708,7 +735,7 @@ def deleteLead(request):
     except:
         return customhandler404(request)
 
-    return index(request,101)
+    return index(request, 101)
 
 
 # delete Tracking
@@ -722,7 +749,7 @@ def deleteTracking(request):
         tracking.objects.filter(trackingID=trackingId).delete()
     except:
         return customhandler404(request)
-    
+
     return viewLeads(request, leadID, 101)  # sending leadID to viewLeads
 
 
@@ -768,20 +795,24 @@ def updateInteraction(request):
     # send mail to KAM about update in interaction
     restaurantName = leadObject.leadID.restaurantName
     restaurantNumber = leadObject.leadID.contactNumber
-    sendMailInteraction(
-        "update",
-        str(ID),
-        Type,
-        Notes,
-        FollowUps,
-        Date,
-        Time,
-        mail.KAMmailid,
-        restaurantName,
-        restaurantNumber,
+    
+    thread1 = threading.Thread(target=sendMailInteraction,
+        args=[
+            "update",
+            str(ID),
+            Type,
+            Notes,
+            FollowUps,
+            Date,
+            Time,
+            mail.KAMmailid,
+            restaurantName,
+            restaurantNumber,
+        ],
     )
+    thread1.start()
 
-    return index(request)
+    return index(request,101)
 
 
 ##get interaction ID to update interaction
