@@ -3,7 +3,7 @@
 ## Overview
 Key Account Manager (KAM) Lead Management System is a comprehensive, Django-based platform designed to optimize the management of leads, interactions, and account performance for large restaurant accounts. This system supports Key Account Managers in effectively tracking leads, planning calls, and monitoring account performance.
 
-The application integrates advanced tools like Celery, Celery Beat, Redis, and MySQL to provide efficient task scheduling, data management, and asynchronous operations. Additionally, it features an automated email notification system to alert Key Account Managers upon lead allocation, ensuring timely follow-ups and proactive engagement.
+The application integrates advanced tools like Celery, Celery Beat, Redis, and MySQL to provide efficient task scheduling, Caching, data management, and asynchronous operations. Additionally, it features an automated email notification system to alert Key Account Managers upon lead allocation, ensuring timely follow-ups and proactive engagement.
 
 ---
 ### Link to website : [Click Here](http://3.107.25.45).
