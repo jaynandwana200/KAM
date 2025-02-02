@@ -3,12 +3,16 @@ from .models import leads, interactionLogging, tracking, KAMmail
 from datetime import date
 from django.core.mail import send_mail
 from KAMassignment.settings import EMAIL_HOST_USER
+from django.conf import settings
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 import datetime
 import math
 import logging
 
 logger = logging.getLogger(__name__)
-
+CACHE_TTL = getattr(settings,"CACHE_TTL",DEFAULT_TIMEOUT)
 
 
 
@@ -25,9 +29,27 @@ def customhandler404(request, template_name='KAM/404.html'):
 def performanceTracking(request):
 
     try:
-        allLeads = leads.objects.all()
-        totalIntcount = interactionLogging.objects.count()
-        countLeads = leads.objects.count()
+        leadVal = 4
+        if(cache.get(leadVal)):
+            allLeads = cache.get(leadVal)
+        else:
+            allLeads = leads.objects.all()
+            cache.set(leadVal,allLeads)
+
+        countVal = 5
+        if(cache.get(countVal)):
+            totalIntcount = cache.get(countVal)
+        else:
+            totalIntcount = interactionLogging.objects.count()
+            cache.set(countVal,totalIntcount)
+        
+        countLeadsVal = 6
+        if(cache.get(countLeadsVal)):
+            countLeads = cache.get(countLeadsVal)
+        else:
+            countLeads = leads.objects.count()
+            cache.set(countLeadsVal,countLeads)
+
     except:
         return customhandler404(request)
 
@@ -198,13 +220,25 @@ def sendMailInteraction(
 
 # Main Page
 # similar naming convention used in all functions
-def index(request):
+def index(request,deleteLead = 2):
 
     try:
-        allLeads = leads.objects.all()  # Fetching all leads data from database
-        allInteractions = (
-            interactionLogging.objects.all()
-        )  # Fetching all interaction data from database
+        leadVal = 2
+        if(cache.get(leadVal) and deleteLead == 2):
+            allLeads = cache.get(leadVal)
+        else:
+            allLeads = leads.objects.all()  # Fetching all leads data from database
+            cache.set(leadVal,allLeads)
+
+        interactionVal = 3
+        if(cache.get(interactionVal) and deleteLead == 2):
+            allInteractions = cache.get(interactionVal)
+        else:
+            allInteractions = (
+                interactionLogging.objects.all()
+            )  # Fetching all interaction data from database
+            cache.set(interactionVal,allInteractions)
+        
     except:
         allLeads = None
         allInteractions = None
@@ -381,7 +415,7 @@ def createTracker(request):
 
 
 # viewCurrentLeads
-def viewLeads(request, leadIDFetchFromOtherFunc="-1"):
+def viewLeads(request, leadIDFetchFromOtherFunc="-1",deleteLeadVal = 2):
 
     # accessing leadid from index page
     leadId = request.POST.get("leadid", "0")
@@ -391,14 +425,31 @@ def viewLeads(request, leadIDFetchFromOtherFunc="-1"):
         leadId = leadIDFetchFromOtherFunc
 
     try:
-        leadData = leads.objects.filter(
-            leadID=leadId
-        )  # Fetching leads data from database
-        interactionsData = interactionLogging.objects.filter(
-            leadID__leadID__contains=leadId
-        )
+        if(cache.get(leadId) and deleteLeadVal == 2):
+            leadData = cache.get(leadId)
+        else:
+            leadData = leads.objects.filter(
+                leadID=leadId
+            )  # Fetching leads data from database
+            cache.set(leadId,leadData)
+
+        interactions = 0
+        if(cache.get(interactions) and deleteLeadVal == 2):
+            interactionsData = cache.get(interactions)
+        else:
+            interactionsData = interactionLogging.objects.filter(
+                leadID__leadID__contains=leadId
+            )
+            cache.set(interactions,interactionsData)
+        
         # Fetching tracking data from database
-        trackingData = tracking.objects.filter(leadID__leadID__contains=leadId)
+        track = 1
+        if(cache.get(track) and deleteLeadVal == 2):
+            trackingData = cache.get(track)
+        else:
+            trackingData = tracking.objects.filter(leadID__leadID__contains=leadId)
+            cache.set(track,trackingData)
+
     except:
         leadData = None
         interactionsData = None
@@ -417,8 +468,23 @@ def searchResult(request):
 
     # fetching data from database
     try:
-        leadData = leads.objects.all()
-        interactionData = interactionLogging.objects.all()
+        leadVal = 2
+        if(cache.get(leadVal)):
+            leadData = cache.get(leadVal)
+            print("Cache called for lead")
+        else:
+            leadData = leads.objects.all()  # Fetching all leads data from database
+            cache.set(leadVal,leadData)
+
+        interactionVal = 3
+        if(cache.get(interactionVal)):
+            interactionData = cache.get(interactionVal)
+        else:
+            interactionData = (
+                interactionLogging.objects.all()
+            )  # Fetching all interaction data from database
+            cache.set(interactionVal,interactionData)
+        
     except:
         return customhandler404(request)
 
@@ -628,7 +694,7 @@ def deleteInteraction(request):
     except:
         return customhandler404(request)
     
-    return index(request)
+    return index(request,101)
 
 
 # delete Lead
@@ -642,7 +708,7 @@ def deleteLead(request):
     except:
         return customhandler404(request)
 
-    return index(request)
+    return index(request,101)
 
 
 # delete Tracking
@@ -657,7 +723,7 @@ def deleteTracking(request):
     except:
         return customhandler404(request)
     
-    return viewLeads(request, leadID)  # sending leadID to viewLeads
+    return viewLeads(request, leadID, 101)  # sending leadID to viewLeads
 
 
 ##get interaction ID to update interaction
