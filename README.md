@@ -19,7 +19,7 @@ The application integrates advanced tools like Celery, Celery Beat, Redis, and M
 - Monitor lead status transitions with automatic data updates.
 - **Notify Key Account Managers via email when a lead is allocated to them.**
 - Remove interactions of inactive leads to maintain a clean database.
-- **Notify Key Acoount managers about allocation and deallocation of Lead via email on change of Key account manager.**
+- **Notify Key Acoount managers about allocation and deallocation of Lead via email using multithreading on change of Key account manager.**
 
 ### 2. Contact Management
 - Add, update, and delete Points of Contact (POCs) with detailed information.
