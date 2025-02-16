@@ -220,7 +220,7 @@ def sendMailInteraction(
 
 # Main Page
 # similar naming convention used in all functions
-def index(request, deleteLead=2):
+def index(request, deleteLead=1):
 
     try:
         leadVal = 2
