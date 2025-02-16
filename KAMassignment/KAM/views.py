@@ -416,7 +416,7 @@ def createTracker(request):
     except:
         return customhandler404(request)
 
-    return viewLeads(request, leadId)
+    return viewLeads(request, leadId, 1)
 
 
 # viewCurrentLeads
@@ -548,7 +548,7 @@ def convert24(s=""):
 
     if period == "a.m." and hrs == 12:
         time = "00:00:00"
-    elif period == "a.m.":
+    elif period == "a.m." or (hrs == 12 and period == "p.m."):
         time = str(hrs) + ":" + mins + ":00"
     else:
         hrs += 12
@@ -572,6 +572,7 @@ def updateLeads(request):
     KAMId = request.POST.get("KAMID", "")
     Time = request.POST.get("time", "")
     Time = convert24(Time)
+
 
     # finding KAMID to get old KAMID mail if modified
     try:
@@ -605,6 +606,8 @@ def updateLeads(request):
         )
     except:
         raise Exception("Can't update data in table")
+
+    
 
     # seding mail to respective KAMID
     if int(KAMId) != oldKAMIDmail.KAMID:
