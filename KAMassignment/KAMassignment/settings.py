@@ -102,7 +102,7 @@ DATABASES = {
         'NAME': 'KAMASSIGN',
         'USER' : 'django',
         'PASSWORD' : 'Lakshi2004',
-        'HOST' : 'kamassign.cs36uom0u2s1.us-east-1.rds.amazonaws.com',
+        'HOST' : 'kam.cx0e8eq42joa.eu-north-1.rds.amazonaws.com',
         'PORT' : 3306,
         "OPTIONS": {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1",
